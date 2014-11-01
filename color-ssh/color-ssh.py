@@ -55,6 +55,7 @@ if os.path.exists(config_path):
             continue
         if len(parts) != 2:
             sys.stderr.write("%s: Syntax error at line %i\n" % (config_path, line_id))
+            continue
         try:
             config[parts[0]] = hex2rgb(parts[1])
         except ValueError:

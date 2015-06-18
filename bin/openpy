@@ -31,7 +31,7 @@ try:
     if args.path:
         print(path)
     else:
-        os.system(OPEN + ' ' + path)
+        subprocess.call([OPEN, path])
 except ImportError:
     print('Module "%s" not found' % args.module)
     sys.exit(2)

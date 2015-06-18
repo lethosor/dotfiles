@@ -1,0 +1,7 @@
+#!/usr/bin/env python
+import json, sys, urllib
+repo, tag = sys.argv[1], sys.argv[2]
+response = urllib.urlopen('https://api.github.com/repos/%s/releases/tags/%s' % (repo, tag))
+res = json.load(response)
+for asset in res['assets']:
+    print('%-5i %s' % (asset['download_count'], asset['name']))

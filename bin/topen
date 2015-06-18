@@ -1,0 +1,8 @@
+#! /bin/bash
+if [ "$1" ]
+then
+        touch "$@"
+        open "$@"  
+else
+        echo "Usage:" $0 "{filename}"
+fi

@@ -1,0 +1,4 @@
+#!/bin/sh
+cmd="$1"
+anybar yellow "$2"
+sh -c "$cmd" && anybar green "$2" || anybar red "$2"

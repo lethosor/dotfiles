@@ -72,9 +72,21 @@ if len(sys.argv) >= 2:
             terminal.color(config[k])
             break
 
+def run_script(p):
+    p = os.path.expanduser(p)
+    if os.path.exists(p):
+        try:
+            subprocess.call(['sh', p] + sys.argv[1:])
+        except subprocess.CalledProcessError:
+            pass
+
+run_script('~/.bash/color-ssh-pre.sh')
+
 try:
     subprocess.call(['ssh'] + sys.argv[1:])
 except:
     print('\n')
 finally:
     terminal.color(config['<default>'])
+
+run_script('~/.bash/color-ssh-post.sh')

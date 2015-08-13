@@ -3,6 +3,11 @@ import collections, fnmatch, os, shlex, subprocess, sys
 config = collections.OrderedDict()
 config_path = os.path.abspath(os.path.expanduser(os.environ.get('SSH_COLOR_PATH', '~/.ssh-colors.txt')))
 
+NO_COLOR = False
+if '--no-color' in sys.argv:
+    sys.argv.remove('--no-color')
+    NO_COLOR = True
+
 def hex2rgb(s):
     s = s.replace('#', '')
     if len(s) not in (3, 6):
@@ -24,10 +29,12 @@ def rgb2applescript(rgb):
 class Terminal:
     def __init__(self, name):
         method = 'color_' + name
-        if hasattr(self, method):
+        self.color = self._color_default
+        if NO_COLOR:
+            pass
+        elif hasattr(self, method):
             self.color = getattr(self, method)
         else:
-            self.color = self._color_default
             sys.stderr.write('color-ssh: Unrecognized terminal: %s\n' % name)
 
     def _color_default(self, rgb):

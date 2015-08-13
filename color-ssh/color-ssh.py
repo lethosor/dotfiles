@@ -44,14 +44,20 @@ class Terminal:
         sys.stdout.write('\033]11;%s\007' % rgb2hex(rgb))
         sys.stdout.flush()
 
-    def color_Apple_Terminal(self, rgb):
+    def color_apple(self, rgb):
         subprocess.call(['osascript', '-e',
             'tell application "Terminal" to set background color of first window to %s'
             % rgb2applescript(rgb)])
+    color_Apple_Terminal = color_apple
 
-termname = os.environ.get('TERM_PROGRAM', False) or \
-            os.environ.get('TERM', '')
-terminal = Terminal(termname)
+if 'XTERM_VERSION' in os.environ:
+    terminal = Terminal('xterm')
+elif os.environ['TERM_PROGRAM'] == 'Apple_Terminal':
+    terminal = Terminal('apple')
+elif os.environ['TERM'].startswith('xterm'):
+    terminal = Terminal('xterm')
+else:
+    terminal = Terminal(os.environ.get('TERM', ''))
 
 if os.path.exists(config_path):
     line_id = 0

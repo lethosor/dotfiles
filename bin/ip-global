@@ -1,0 +1,52 @@
+#!/usr/bin/env python
+from __future__ import print_function
+import argparse, json, sys
+
+if sys.version[0] == '2':
+    from urllib2 import urlopen as _urlopen
+else:
+    from urllib.requests import urlopen as _urlopen
+
+callback_names = []
+def ip(func):
+    callback_names.append(func.__name__)
+    return func
+
+@ip
+def ip42pl():
+    return urlopen('http://ip.42.pl/raw').read()
+@ip
+def jsonip():
+    return json.load(urlopen('http://jsonip.com'))['ip']
+@ip
+def httpbin():
+    return json.load(urlopen('http://httpbin.org/ip'))['origin']
+@ip
+def ipify():
+    return json.load(urlopen('https://api.ipify.org/?format=json'))['ip']
+
+parser = argparse.ArgumentParser()
+parser.add_argument('sites', nargs='*')
+parser.add_argument('-v', '--verbose', action='store_true')
+parser.add_argument('-t', '--timeout', type=int, default=1)
+args = parser.parse_args()
+def urlopen(*fargs, **fkwargs):
+    fkwargs['timeout'] = args.timeout
+    return _urlopen(*fargs, **fkwargs)
+for s in args.sites:
+    if s in callback_names:
+        callback_names.remove(s)
+        callback_names.insert(0, s)
+    else:
+        print('Unrecognized site: %s' % s, file=sys.stderr)
+for s in callback_names:
+    if args.verbose:
+        print('[%s] Looking up IP' % s, file=sys.stderr)
+    try:
+        print(globals()[s]())
+        break
+    except Exception as e:
+        if args.verbose:
+            print('[%s] Failed: %s' % (s, e), file=sys.stderr)
+else:
+    print('IP lookup failed', file=sys.stderr)

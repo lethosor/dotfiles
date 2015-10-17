@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import atexit, os, shutil, subprocess, sys, tempfile
 
+ARCHS = [32, 64]
+
 tmpdir = tempfile.mkdtemp()
 @atexit.register
 def cleanup():
@@ -37,11 +39,11 @@ def compile_arch(arch):
     shutil.move(output_name, output_path(arch))
 
 try:
-    map(compile_arch, (32, 64))
+    map(compile_arch, ARCHS)
 except subprocess.CalledProcessError:
     fatal('compilation failed')
 
 try:
-    subprocess.check_call(['lipo', '-create', '-o', output_name] + list(map(output_path, (32, 64))))
+    subprocess.check_call(['lipo', '-create', '-o', output_name] + list(map(output_path, ARCHS)))
 except subprocess.CalledProcessError:
     fatal('lipo failed', code=2)

@@ -1,0 +1,20 @@
+#!/usr/bin/env python
+import re, subprocess, sys
+
+commit_pattern = re.compile(r'[0-9a-f]{7,}\.\.[0-9a-f]{7,}')
+
+p = subprocess.Popen(['git', 'push', '--dry-run'] + sys.argv[1:],
+    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+while True:
+    lines = list(filter(len, [p.stdout.readline(), p.stderr.readline()]))
+    if not len(lines):
+        break
+    for line in lines:
+        line = line.decode('utf8').strip('\r\n')
+        # TODO: print to stdout or stderr appropriately
+        print(line)
+        match = commit_pattern.search(line)
+        spaces = re.match(r'\s*', line).group(0)
+        if match:
+            subprocess.call(['git', 'log', match.group(0), '--pretty=' + (spaces * 2) + '%Cgreen%h%Creset: %s'])

@@ -29,7 +29,7 @@ def rgb2applescript(rgb):
 class Terminal:
     def __init__(self, name):
         method = 'color_' + name
-        self.color = self._color_default
+        self.color = self.color_dumb
         if NO_COLOR:
             pass
         elif hasattr(self, method):
@@ -37,8 +37,13 @@ class Terminal:
         else:
             sys.stderr.write('color-ssh: Unrecognized terminal: %s\n' % name)
 
-    def _color_default(self, rgb):
+    def color_dumb(self, rgb):
         pass
+
+    def color_ssh(self, rgb):
+        if not hasattr(self, 'color_ssh_warned'):
+            self.color_ssh_warned = True
+            print('color-ssh: not coloring ssh session')
 
     def color_xterm(self, rgb):
         sys.stdout.write('\033]11;%s\007' % rgb2hex(rgb))
@@ -50,14 +55,18 @@ class Terminal:
             % rgb2applescript(rgb)])
     color_Apple_Terminal = color_apple
 
-if 'XTERM_VERSION' in os.environ:
+if 'COLOR_SSH_TERM' in os.environ:
+    terminal = Terminal(os.environ['COLOR_SSH_TERM'])
+elif 'SSH_TTY' in os.environ or 'SSH_CLIENT' in os.environ:
+    terminal = Terminal('ssh')
+elif 'XTERM_VERSION' in os.environ:
     terminal = Terminal('xterm')
-elif os.environ['TERM_PROGRAM'] == 'Apple_Terminal':
+elif os.environ.get('TERM_PROGRAM', '') == 'Apple_Terminal':
     terminal = Terminal('apple')
-elif os.environ['TERM'].startswith('xterm'):
+elif os.environ.get('TERM', '').startswith('xterm'):
     terminal = Terminal('xterm')
 else:
-    terminal = Terminal(os.environ.get('TERM', ''))
+    terminal = Terminal(os.environ.get('TERM', 'dumb'))
 
 if os.path.exists(config_path):
     line_id = 0

@@ -3,6 +3,14 @@ import re, subprocess, sys
 
 commit_pattern = re.compile(r'[0-9a-f]{7,}\.\.[0-9a-f]{7,}')
 
+args = {
+    '--pager': False
+}
+for a in args:
+    if a in sys.argv:
+        sys.argv.remove(a)
+        args[a] = True
+
 p = subprocess.Popen(['git', 'push', '--dry-run'] + sys.argv[1:],
     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -17,4 +25,10 @@ while True:
         match = commit_pattern.search(line)
         spaces = re.match(r'\s*', line).group(0)
         if match:
-            subprocess.call(['git', 'log', match.group(0), '--pretty=' + (spaces * 2) + '%Cgreen%h%Creset: %s'])
+            subprocess.call(list(filter(bool, [
+                'git',
+                '--no-pager' if not args['--pager'] else '',
+                'log',
+                match.group(0),
+                '--pretty=' + (spaces * 2) + '%Cgreen%h%Creset: %s'
+            ])))

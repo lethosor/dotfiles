@@ -1,0 +1,232 @@
+#!/usr/bin/env python
+import atexit, json, os, re, subprocess, sys, time
+try:
+    import Tkinter as tk
+    import tkSimpleDialog as tkd
+    import tkMessageBox as tkm
+except ImportError:
+    import tkinter as tk
+    import tkinter.simpledialog as tkd
+    import tkinter.messagebox as tkm
+
+PATH = os.path.expanduser('~/.git-ucommit.txt')
+if os.path.exists(PATH):
+    with open(PATH) as f:
+        data = json.load(f)
+else:
+    data = {}
+data.setdefault('users', {})
+data.setdefault('last_user', None)
+@atexit.register
+def save_data():
+    with open(PATH, 'w') as f:
+        json.dump(data, f, indent=2)
+
+class UserError(Exception): pass
+
+def get_creds(search):
+    uinfo = data['users']
+    if search in uinfo:
+        return search, uinfo[search]['email']
+
+    for k, v in uinfo.items():
+        if k.lower() == search.lower() or v['name'].lower() == search.lower():
+            return k, v['email']
+
+    for k, v in uinfo.items():
+        if k.lower().startswith(search) or v['name'].lower().startswith(search):
+            return k, v['email']
+
+    raise UserError("Couldn't find user: %s (out of %i)" % (search, len(uinfo)))
+
+def user_caption(uinfo):
+    return ('%s <%s>' % (uinfo.get('name', ''), uinfo['email'])).strip()
+
+class DialogBase(tkd.Dialog):
+    def buttonbox(self):
+        box = tk.Frame(self)
+
+        w = tk.Button(box, text="Cancel", width=10, command=self.cancel)
+        w.pack(side='left', padx=5, pady=5)
+        w = tk.Button(box, text="OK", width=10, command=self.ok, default='active')
+        w.pack(side='left', padx=5, pady=5)
+
+        self.bind("<Return>", self.ok)
+        self.bind("<Escape>", self.cancel)
+
+        box.pack()
+
+    def mainloop(self):
+        # ensure that keyboard interrupts stop nested mainloop() calls
+        try:
+            tkd.Dialog.mainloop(self)
+        except KeyboardInterrupt:
+            self.destroy()
+
+    def wait_window(self, window):
+        # Tkinter's wait_window() does not handle keyboard interrupts,
+        # so use mainloop() instead and disable this method
+        pass
+
+    def destroy(self):
+        # break out of mainloop()
+        self.quit()
+        tkd.Dialog.destroy(self)
+
+class UserList(DialogBase):
+    def __init__(self, *args, **kwargs):
+        DialogBase.__init__(self, *args, **kwargs)
+        self.withdraw()
+        self.update()
+        self.deiconify()
+
+    def body(self, master):
+        self.minsize(300, self.winfo_height())
+        self.title('Select user')
+        self.list = tk.Listbox(master)
+        self.list.grid(row=1, column=1, sticky='ew')
+        self.list.focus()
+        self.bind('<FocusIn>', lambda e: self.list.focus())
+        self.populate_list()
+        button_frame = tk.Frame(master)
+        button_frame.grid(row=2, column=1, sticky='ew')
+        tk.Button(button_frame, text='Add', command=self.add_user).grid(row=1, column=1)
+        tk.Button(button_frame, text='Edit', command=self.edit_user).grid(row=1, column=2)
+        tk.Button(button_frame, text='Remove', command=self.remove_user).grid(row=1, column=3)
+
+    def populate_list(self):
+        self.list.delete(0, 'end')
+        self.user_map = {}
+        for uid, u in data['users'].items():
+            caption = user_caption(u)
+            if caption in self.user_map:
+                raise UserError('Duplicate user: %s' % caption)
+            self.user_map[caption] = uid
+            self.list.insert('end', caption)
+            if uid == data['last_user']:
+                self.list.selection_set('end')
+
+    def _get_selected_uid(self):
+        if len(self.list.curselection()) != 1:
+            return None
+        return self.user_map[self.list.get(self.list.curselection()[0])]
+
+    def validate(self):
+        uid = self._get_selected_uid()
+        if not uid:
+            return False
+        self.result = data['last_user'] = uid
+        return True
+
+    def add_user(self):
+        self._do_edit_user(None, 'Add user')
+
+    def edit_user(self):
+        uid = self._get_selected_uid()
+        if uid:
+            self._do_edit_user(uid, 'Edit user: %s' % data['users'][uid]['name'])
+
+    def _do_edit_user(self, uid, title):
+        old_uid = uid
+        win = UserEditor(self, uid, title)
+        win.mainloop()
+        result = win.result
+        if not result:
+            return
+        uid, uinfo = result
+        data['users'][uid] = uinfo
+        data['last_user'] = uid
+        if old_uid and uid != old_uid:
+            del data['users'][old_uid]
+        self.populate_list()
+
+    def remove_user(self):
+        uid = self._get_selected_uid()
+        if uid and tkm.askyesno(message='Delete this user?', parent=self):
+            del data['users'][uid]
+            self.populate_list()
+
+class UserEditor(DialogBase):
+    def __init__(self, parent, uid, title):
+        self.uid = uid
+        self.uinfo = data['users'].get(uid, {})
+        DialogBase.__init__(self, parent)
+        self.title(title)
+
+    def body(self, master):
+        row = [1]
+        def mkfield(name, contents=None):
+            tk.Label(master, text=name + ':').grid(row=row[0], column=1, sticky='e')
+            f = tk.Entry(master)
+            if contents:
+                f.insert(0, contents)
+            f.grid(row=row[0], column=2)
+            row[0] += 1
+            return f
+        self.f_name = mkfield('Name', self.uinfo.get('name'))
+        self.f_git_name = mkfield('Git username', self.uid)
+        self.f_email = mkfield('Email', self.uinfo.get('email'))
+
+        self.f_name.focus()
+        self.edited_git_name = bool(self.uid)
+        self.idle()
+
+    def idle(self):
+        if self.focus_get() is self.f_name and not self.edited_git_name:
+            self.f_git_name.delete(0, 'end')
+            self.f_git_name.insert(0, self.f_name.get())
+        if self.focus_get() is self.f_git_name and self.f_name.get() != self.f_git_name.get():
+            self.edited_git_name = True
+        self.after(100, self.idle)
+
+    def validate(self):
+        # keep focus on current field
+        self.initial_focus = self.focus_get()
+        return len(self.f_name.get()) and len(self.f_git_name.get()) and \
+            re.match(r'[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}', self.f_email.get(), re.I)
+
+    def apply(self):
+        self.result = (
+            self.f_git_name.get(),
+            {
+                'email': self.f_email.get(),
+                'name': self.f_name.get()
+            }
+        )
+
+def prompt_user():
+    def tick():
+        root.after(100, tick)
+    root = tk.Tk()
+    root.withdraw()
+    root.after_idle(tick)
+    if sys.platform == 'darwin':
+        # bring to front on OS X
+        subprocess.call(['osascript', '-e',
+            'tell application "System Events" to set frontmost of (every process whose unix id is %i) to true' % os.getpid()])
+    win = UserList(root)
+    win.mainloop()
+    return win.result
+
+def main(args):
+    try:
+        user = None
+        if args and not args[0].startswith('-'):
+            user, args = args[0], args[1:]
+        if not user:
+            user = prompt_user()
+        if not user:
+            raise UserError('No user selected')
+        user, email = get_creds(user)
+        args = ['git','-c', 'user.name=%s' % user, '-c', 'user.email=%s' % email,
+            'commit', '--author', '%s <%s>' % (user, email)] + args
+        subprocess.call(args)
+    except KeyboardInterrupt:
+        pass
+
+if __name__ == '__main__':
+    try:
+        main(sys.argv[1:])
+    except UserError as e:
+        print('git-ucommit: error: %s' % e)
+        sys.exit(1)

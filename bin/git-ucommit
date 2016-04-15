@@ -43,6 +43,10 @@ def user_caption(uinfo):
     return ('%s <%s>' % (uinfo.get('name', ''), uinfo['email'])).strip()
 
 class DialogBase(tkd.Dialog):
+    def __init__(self, *args, **kwargs):
+        tkd.Dialog.__init__(self, *args, **kwargs)
+        self.minsize(self.winfo_width(), self.winfo_height())
+
     def buttonbox(self):
         box = tk.Frame(self)
 
@@ -62,6 +66,7 @@ class DialogBase(tkd.Dialog):
             tkd.Dialog.mainloop(self)
         except KeyboardInterrupt:
             self.destroy()
+            raise
 
     def wait_window(self, window):
         # Tkinter's wait_window() does not handle keyboard interrupts,
@@ -79,17 +84,22 @@ class UserList(DialogBase):
         self.withdraw()
         self.update()
         self.deiconify()
+        self.minsize(300, self.winfo_height())
 
     def body(self, master):
-        self.minsize(300, self.winfo_height())
+        master.pack(expand=True, fill='both')
+        master.grid_rowconfigure(1, weight=1)
+        master.grid_columnconfigure(1, weight=1)
+
         self.title('Select user')
-        self.list = tk.Listbox(master)
-        self.list.grid(row=1, column=1, sticky='ew')
+        self.list = tk.Listbox(master, exportselection=False, width=30)
+        self.list.grid(row=1, column=1, sticky='nsew', padx=20)
         self.list.focus()
         self.bind('<FocusIn>', lambda e: self.list.focus())
         self.populate_list()
+
         button_frame = tk.Frame(master)
-        button_frame.grid(row=2, column=1, sticky='ew')
+        button_frame.grid(row=2, column=1)
         tk.Button(button_frame, text='Add', command=self.add_user).grid(row=1, column=1)
         tk.Button(button_frame, text='Edit', command=self.edit_user).grid(row=1, column=2)
         tk.Button(button_frame, text='Remove', command=self.remove_user).grid(row=1, column=3)
@@ -97,14 +107,15 @@ class UserList(DialogBase):
     def populate_list(self):
         self.list.delete(0, 'end')
         self.user_map = {}
-        for uid, u in data['users'].items():
+        for uid, u in sorted(data['users'].items()):
             caption = user_caption(u)
             if caption in self.user_map:
                 raise UserError('Duplicate user: %s' % caption)
             self.user_map[caption] = uid
             self.list.insert('end', caption)
             if uid == data['last_user']:
-                self.list.selection_set('end')
+                print(uid)
+                self.list.selection_set('end','end')
 
     def _get_selected_uid(self):
         if len(self.list.curselection()) != 1:
@@ -218,11 +229,13 @@ def main(args):
         if not user:
             raise UserError('No user selected')
         user, email = get_creds(user)
+        author = '%s <%s>' % (user, email)
+        print('Author: %s' % author)
         args = ['git','-c', 'user.name=%s' % user, '-c', 'user.email=%s' % email,
-            'commit', '--author', '%s <%s>' % (user, email)] + args
+            'commit', '--author', author] + args
         subprocess.call(args)
     except KeyboardInterrupt:
-        pass
+        sys.exit(2)
 
 if __name__ == '__main__':
     try:

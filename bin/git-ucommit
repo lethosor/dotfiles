@@ -81,6 +81,8 @@ class DialogBase(tkd.Dialog):
 class UserList(DialogBase):
     def __init__(self, *args, **kwargs):
         DialogBase.__init__(self, *args, **kwargs)
+        w, h = tuple(map(int, self.geometry().split('+')[0].split('x')))
+        self.geometry('+%i+%i' % ((self.winfo_screenwidth() - w) / 2, (self.winfo_screenheight() - h) / 2))
         self.withdraw()
         self.update()
         self.deiconify()
@@ -114,8 +116,9 @@ class UserList(DialogBase):
             self.user_map[caption] = uid
             self.list.insert('end', caption)
             if uid == data['last_user']:
-                print(uid)
-                self.list.selection_set('end','end')
+                self.list.selection_set('end')
+                self.list.selection_anchor('end')
+                self.list.see('end')
 
     def _get_selected_uid(self):
         if len(self.list.curselection()) != 1:
@@ -156,6 +159,9 @@ class UserList(DialogBase):
         if uid and tkm.askyesno(message='Delete this user?', parent=self):
             del data['users'][uid]
             self.populate_list()
+
+    def destroy(self):
+        DialogBase.destroy(self)
 
 class UserEditor(DialogBase):
     def __init__(self, parent, uid, title):

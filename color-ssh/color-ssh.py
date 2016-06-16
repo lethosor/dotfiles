@@ -51,8 +51,9 @@ class Terminal:
 
     def color_apple(self, rgb):
         subprocess.call(['osascript', '-e',
-            'tell application "Terminal" to set background color of first window to %s'
-            % rgb2applescript(rgb)])
+            'tell application "Terminal" to set background color of '
+            'every tab of every window whose tty is "%s" to %s'
+            % (os.ttyname(sys.stdout.fileno()), rgb2applescript(rgb))])
     color_Apple_Terminal = color_apple
 
 if 'COLOR_SSH_TERM' in os.environ:

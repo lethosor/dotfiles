@@ -1,1 +1,3 @@
 "\C-xr": redraw-current-line
+"\e[1;2D": backward-word
+"\e[1;2C": forward-word

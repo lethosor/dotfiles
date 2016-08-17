@@ -17,8 +17,12 @@ home_path = expanduser('~')
 assert isdir(cur_path)
 assert isdir(home_path)
 
+with open(join(cur_path, 'dotfile_blacklist.txt')) as f:
+    blacklist = f.read().replace('\r', '').split('\n')
+    blacklist = list(filter(bool, blacklist))
+
 for dotfile in listdir(cur_path):
-    if dotfile.startswith('.') and isfile(dotfile):
+    if dotfile.startswith('.') and isfile(dotfile) and dotfile not in blacklist:
         full_path = join(cur_path, dotfile)
         dest_path = join(home_path, dotfile)
         if isfile(dest_path):

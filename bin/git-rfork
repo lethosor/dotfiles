@@ -1,0 +1,20 @@
+#!/bin/sh
+# Add GitHub fork as a remote
+# "origin" URL must be "protocol://.../owner/repo" format (not SSH)
+set -e
+
+echo_run() {
+    echo "$(tput bold)==>" "$@$(tput sgr0)"
+    "$@"
+}
+
+REPO_OWNER="$1"
+if [ -z "$REPO_OWNER" ]; then
+    echo "$(basename "$0"): needs repo owner"
+    exit 1
+fi
+
+REPO_URL=$(git config --get remote.origin.url | awk 'BEGIN{FS=OFS="/"} {$(NF-1)="'"$REPO_OWNER"'"; print}')
+
+echo_run git remote add "$REPO_OWNER" "$REPO_URL"
+echo_run git fetch "$REPO_OWNER"

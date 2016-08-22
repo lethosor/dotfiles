@@ -1,1 +1,11 @@
 .DS_Store
+*~
+*.py[cod]
+*.orig
+*.ignore
+ignore/*
+ignore
+.ignore
+
+*.sublime-project
+*.sublime-workspace

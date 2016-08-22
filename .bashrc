@@ -1,5 +1,3 @@
-echo bashrc
-
 # Load _* scripts first
 . ~/bashrc.d/_funcs.bash
 . ~/bashrc.d/_paths.bash
@@ -7,7 +5,6 @@ echo bashrc
 
 for script in ~/bashrc.d/*.bash; do
     if [[ "$(basename "$script")" != "_"* ]]; then
-        echo '>' $script
         . "$script"
     fi
 done

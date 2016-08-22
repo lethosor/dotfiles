@@ -20,7 +20,7 @@ function add_path {
     fi
 
     while [[ "$#" -ne 0 ]]; do
-        if [[ ":${!var}" != *":$1:"* ]]; then
+        if [[ ":${!var}:" != *":$1:"* ]]; then
             # add path
             if [[ "$loc" = "begin" ]]; then
                 export $var="$1:${!var}"

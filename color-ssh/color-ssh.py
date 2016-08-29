@@ -26,6 +26,25 @@ def rgb2applescript(rgb):
         raise ValueError('Invalid RGB color')
     return '{%i, %i, %i, 0}' % tuple([max(0, min(255, x)) * 256 for x in rgb])
 
+def parse_ssh_config():
+    config = collections.OrderedDict()
+    cur = None
+    with open(os.path.expanduser('~/.ssh/config')) as f:
+        for line in f.readlines():
+            line = line.split()
+            if not line:
+                continue
+            line[0] = line[0].lower()
+            if line[0] == 'host':
+                cur = {}
+                for host in line[1:]:
+                    config[host] = cur
+            elif cur is None:
+                raise ValueError('~/.ssh/config lines found before host')
+            else:
+                cur[line[0]] = line[1]
+    return config
+
 class Terminal:
     def __init__(self, name):
         method = 'color_' + name
@@ -90,8 +109,21 @@ if not '*' in config:
 if not '<default>' in config:
     config['<default>'] = hex2rgb('#ffffff')
 if len(sys.argv) >= 2:
+    host = sys.argv[1]
+
+    # Check whether this host is an alias defined in ~/.ssh/config
+    ssh_config = parse_ssh_config()
+    if host in ssh_config and 'hostname' in ssh_config[host]:
+        host = ssh_config[host]['hostname'].replace('%h', host)
+    else:
+        # Check for wildcard hostname matches
+        for host_pattern, host_config in ssh_config.items():
+            if fnmatch.fnmatch(host, host_pattern):
+                if 'hostname' in host_config:
+                    host = host_config['hostname'].replace('%h', host)
+
     for k in config:
-        if fnmatch.fnmatch(sys.argv[1], k):
+        if fnmatch.fnmatch(host, k):
             terminal.color(config[k])
             break
 

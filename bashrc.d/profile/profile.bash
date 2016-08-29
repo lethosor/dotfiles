@@ -1,30 +1,11 @@
-good_cows=(
-    "blowfish"
-    "cheese"
-    "cower"
-    "default"
-    "dragon-and-cow"
-    "dragon"
-    "elephant"
-    "flaming-sheep"
-    "ghostbusters"
-    "meow"
-    "milk"
-    "moofasa"
-    "moose"
-    "stegosaurus"
-    "turkey"
-    "turtle"
-    "tux"
-    "vader"
-)
+. ~/bashrc.d/_funcs.bash
+. ~/bashrc.d/_paths.bash
+
 if [ -z "$bash_profile_loaded" ]
 then
     uptime
-    cow=${good_cows[$RANDOM % (${#good_cows[@]}) ]}
-    if [[ -z "$cow" ]]; then
-        cow=default
+    if cmd_exists fortune && cmd_exists cowsay; then
+        . ~/bashrc.d/profile/cows.bash
     fi
-    fortune | cowsay -f "$cow"
     export bash_profile_loaded=1
 fi

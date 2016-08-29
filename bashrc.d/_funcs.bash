@@ -32,3 +32,15 @@ function add_path {
     done
 }
 
+function cmd_exists {
+    if [[ -z "$1" ]]; then
+        echo "cmd_exists: no command" >/dev/stderr
+        return 2
+    fi
+
+    if type "$1" >/dev/null 2>&1; then
+        return 0
+    else
+        return 1
+    fi
+}

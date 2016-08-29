@@ -44,3 +44,17 @@ function cmd_exists {
         return 1
     fi
 }
+
+function src_if_exists {
+    if [[ -z "$1" ]]; then
+        echo "src_if_exists: no files" >/dev/stderr
+        return 2
+    fi
+
+    while [[ "$#" -ne 0 ]]; do
+        if [[ -f "$1" ]]; then
+            . "$1"
+        fi
+        shift
+    done
+}

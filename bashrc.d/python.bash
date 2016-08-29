@@ -1,2 +1,2 @@
 export PYTHONSTARTUP=~/.pythonstartup.py
-. "$HOMEBREW_PREFIX/bin/virtualenvwrapper.sh"
+src_if_exists "$HOMEBREW_PREFIX/bin/virtualenvwrapper.sh"

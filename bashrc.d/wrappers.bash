@@ -16,4 +16,8 @@ function mcd {
     cd "$1"
 }
 
+function unsafe-ssh {
+    ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$@"
+}
+
 alias reload='exec bash'

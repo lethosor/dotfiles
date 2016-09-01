@@ -1,0 +1,32 @@
+#!/bin/sh
+usage() {
+    if [ -n "$1" ]; then
+        echo "$@" 2>&1
+    fi
+    echo "usage: $0 [-s|-sexagesimal] FILE" >&2
+    exit 1
+}
+
+file=
+flags=
+while [ "$#" -ne 0 ]; do
+    case "$1" in
+    -s|-sexagesimal)
+        flags="$flags -sexagesimal"
+        ;;
+    -h|-?|--help)
+        usage
+        ;;
+    *)
+        if [ -z "$file" ]; then
+            file="$1"
+        else
+            usage "cannot specify file '$1': '$file' already specified"
+        fi
+        ;;
+    esac
+
+    shift
+done
+
+ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 $flags "$file"

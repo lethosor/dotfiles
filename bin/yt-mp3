@@ -1,0 +1,11 @@
+#!/bin/sh
+if [ -z "$1" ] || [ -z "$2" ]; then
+    echo >&2 "usage: $(basename "$0") URL FILE (no extension)"
+    exit 2
+fi
+url="$1"
+file="$2"
+shift
+shift
+youtube-dl --extract-audio --prefer-ffmpeg --audio-format mp3 --output "$file.%(ext)s" "$url" "$@"
+exit $?

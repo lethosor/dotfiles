@@ -1,1 +1,1 @@
-export GOROOT="$HOMEBREW_PREFIX/opt/go/libexec"
+[ -n "$HOMEBREW_PREFIX" ] && export GOROOT="$HOMEBREW_PREFIX/opt/go/libexec"

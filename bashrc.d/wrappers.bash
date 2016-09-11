@@ -20,4 +20,9 @@ function unsafe-ssh {
     ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$@"
 }
 
-alias reload='exec bash'
+# maintain "-bash" vs "bash"
+if [[ "$(ps -p $$ -o command | tail -n1)" =~ ^- ]]; then
+    alias reload='exec -l bash'
+else
+    alias reload='exec bash'
+fi

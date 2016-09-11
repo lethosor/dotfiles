@@ -21,11 +21,16 @@ function add_path {
 
     while [[ "$#" -ne 0 ]]; do
         if [[ ":${!var}:" != *":$1:"* ]]; then
+            # only insert separator if this variable already has a value
+            local sep=":"
+            if [[ -z "${!var}" ]]; then
+                sep=""
+            fi
             # add path
             if [[ "$loc" = "begin" ]]; then
-                export $var="$1:${!var}"
+                export $var="$1$sep${!var}"
             else
-                export $var="${!var}:$1"
+                export $var="${!var}$sep$1"
             fi
         fi
         shift

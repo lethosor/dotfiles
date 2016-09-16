@@ -1,0 +1,156 @@
+#!/usr/bin/env python
+
+'''
+Convert google tests to assert statements
+
+Will also work if renamed to "uglify-tests", "make-tests-stupid", etc.
+
+Usage:
+
+ungtest INFILE -o OUTFILE
+
+A sample input file:
+
+    #include foo
+    #include bar
+    ...
+    // @DECLS@ (this line will be replaced with forward declarations for tests)
+
+    TEST(foo, bar) {
+        ...
+    }
+
+To omit any includes, include "//skip" later on the line.
+
+Any variation of @DECLS@ will work, like @DECLARATIONS@. Any newlines after
+this line will be preserved. Any before this line will probably not, because
+cpp is annoying.
+
+The order of the output is as follows:
+- Any content before @DECLS@, maybe with whitespace removed.
+- Forward declarations for tests
+- A main() function (the name can be changed) that calls all the tests
+- Any code present after @DECLS@, including test implementations defined with
+  the TEST macro
+
+FAQ
+---
+
+Why does this exist?
+- To allow people to use GTest without other people who dislike GTest knowing.
+
+Is using this Good Practice?
+- Probably not.
+
+What is "cpp"?
+- The C preprocessor, which is used here instead of using regexes for
+  everything. Not to be confused with C++, g++, random files on your computer
+  ending with ".cpp", etc.
+
+Why don't you pass '-traditional-cpp' to cpp instead of preserving whitespace
+manually?
+- That option preserves all whitespace, even stuff you probably don't want:
+
+        #define foo(x,y) x + y
+
+        foo(1, 2)       // "1 +  2" (note the double space before "2")
+
+Why is this so bad?
+- I wrote most of it in two hours, late at night, and it uses regexes
+  extensively.
+
+'''
+
+import argparse, collections, os, re, subprocess
+
+def region_save_whitespace(text):
+    return re.sub(r'(\s*\n\s*)', r'/*@@\1@@*/', text)
+
+def region_restore_whitespace(text):
+    return text.replace('/*@@', '').replace('@@*/', '')
+
+parser = argparse.ArgumentParser()
+parser.add_argument('infile', type=str)
+parser.add_argument('-o', '--outfile', type=str, required=True)
+parser.add_argument('-m', '--main', help='main function name', default='main')
+parser.add_argument('-i', '--indent', help='characters to use for indenting main function', default='    ')
+args = parser.parse_args()
+
+gcc = os.environ.get('CXX', 'g++')
+
+builtins = '''
+#define ASSERT_TRUE(x) assert(x)
+#define ASSERT_FALSE(x) assert(x)
+#define ASSERT_EQ(x, y) assert(x == y)
+#define ASSERT_NE(x, y) assert(x != y)
+#define ASSERT_LE(x, y) assert(x <= y)
+#define ASSERT_LT(x, y) assert(x < y)
+#define ASSERT_GE(x, y) assert(x >= y)
+#define ASSERT_GT(x, y) assert(x > y)
+'''
+
+ident_pattern = r'[A-Za-z_][A-Za-z_0-9]*'
+test_call_pattern = re.compile(r'TEST\s*\(ID,ID\)'.replace('ID', r'\s*(' + ident_pattern + r')\s*'))
+decls_pattern = re.compile(r'//\s*@DECL.*?S@.*\n', re.M)
+
+for match in re.findall(r'ASSERT_[A-Z]+', builtins):
+    builtins += '#define %s %s\n' % (match.replace('ASSERT_', 'EXPECT_'), match)
+
+with open(args.infile) as f:
+    in_contents = f.read()
+
+in_contents = re.sub(r'\s*#include.*skip', '', in_contents)
+in_contents = re.sub(r'\s*#include', '//#include', in_contents)
+
+in_contents = builtins + in_contents
+
+decls_pos = decls_pattern.search(in_contents).end()
+in_contents = in_contents[:decls_pos] + region_save_whitespace(in_contents[decls_pos:])
+
+proc = subprocess.Popen([gcc,
+    '-E', '-', '-o', args.outfile,
+    '-C', # keep comments
+    '-P', # leave out debug info
+], stdin=subprocess.PIPE)
+proc.communicate(input=in_contents)
+
+with open(args.outfile) as f:
+    out_contents = f.read()
+
+out_contents = region_restore_whitespace(out_contents)
+out_contents = out_contents.replace('*/', '*/\n\n')
+out_contents = out_contents.replace('//#include', '#include')
+
+decls_pos = decls_pattern.search(out_contents).start()
+out_parts = [out_contents[:decls_pos], out_contents[decls_pos:]]
+out_parts.insert(1, '')
+
+tests = collections.OrderedDict()
+def test_callback(match):
+    case, name = match.groups()
+    tests.setdefault(case, [])
+    tests[case].append(name)
+    return 'void test_%s_%s()' % (case, name)
+
+out_parts[2] = test_call_pattern.sub(test_callback, out_parts[2])
+
+main_code = 'int %s() {\n' % args.main
+for case in tests:
+    for name in tests[case]:
+        full_name = 'test_%s_%s' % (case, name)
+        out_parts[1] += 'void %s();\n' % full_name
+        main_code += args.indent + full_name + '();\n'
+    out_parts[1] += '\n'
+    main_code += '\n'
+
+main_code += '\n' + args.indent + 'return 0;\n}\n'
+out_parts.insert(2, main_code)
+
+out_contents = '\n'.join(out_parts)
+
+out_contents = decls_pattern.sub('', out_contents)
+out_contents = re.sub(r'(?<!\n)#include', '\n#include', out_contents)
+out_contents = re.sub(r'\n{3,}', '\n\n', out_contents)
+
+with open(args.outfile, 'w') as f:
+    f.write(out_contents)

@@ -112,7 +112,7 @@ proc = subprocess.Popen([gcc,
     '-C', # keep comments
     '-P', # leave out debug info
 ], stdin=subprocess.PIPE)
-proc.communicate(input=in_contents)
+proc.communicate(input=in_contents.encode('utf-8'))
 
 with open(args.outfile) as f:
     out_contents = f.read()

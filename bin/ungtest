@@ -13,7 +13,13 @@ A sample input file:
 
     #include foo
     #include bar
-    ...
+
+    ... // macros that you want to be expanded should go here
+
+    // @START@ (this will be removed)
+
+    ... // any code to include verbatim should go here
+
     // @DECLS@ (this line will be replaced with forward declarations for tests)
 
     TEST(foo, bar) {
@@ -23,11 +29,12 @@ A sample input file:
 To omit any includes, include "//skip" later on the line.
 
 Any variation of @DECLS@ will work, like @DECLARATIONS@. Any newlines after
-this line will be preserved. Any before this line will probably not, because
+@START@ will be preserved. Any before this line will probably not, because
 cpp is annoying.
 
 The order of the output is as follows:
-- Any content before @DECLS@, maybe with whitespace removed.
+- Any content before @START@, maybe with whitespace removed.
+- Any content before @DECLS@
 - Forward declarations for tests
 - A main() function (the name can be changed) that calls all the tests
 - Any code present after @DECLS@, including test implementations defined with
@@ -63,10 +70,14 @@ Why is this so bad?
 
 import argparse, collections, os, re, subprocess
 
+multiline_comment_pattern = re.compile(r'/\*.*?\*/', re.DOTALL | re.MULTILINE)
+
 def region_save_whitespace(text):
+    text = multiline_comment_pattern.sub(lambda c: c.group().replace('\n', '$$$$$'), text)
     return re.sub(r'(\s*\n\s*)', r'/*@@\1@@*/', text)
 
 def region_restore_whitespace(text):
+    text = multiline_comment_pattern.sub(lambda c: c.group().replace('$$$$$', '\n'), text)
     return text.replace('/*@@', '').replace('@@*/', '')
 
 parser = argparse.ArgumentParser()
@@ -91,7 +102,8 @@ builtins = '''
 
 ident_pattern = r'[A-Za-z_][A-Za-z_0-9]*'
 test_call_pattern = re.compile(r'TEST\s*\(ID,ID\)'.replace('ID', r'\s*(' + ident_pattern + r')\s*'))
-decls_pattern = re.compile(r'//\s*@DECL.*?S@.*\n', re.M)
+decls_pattern = re.compile(r'//\s*@DECL.*?S@.*\n', re.MULTILINE)
+start_pattern = re.compile(r'//\s*@START@.*\n', re.MULTILINE)
 
 for match in re.findall(r'ASSERT_[A-Z]+', builtins):
     builtins += '#define %s %s\n' % (match.replace('ASSERT_', 'EXPECT_'), match)
@@ -102,10 +114,11 @@ with open(args.infile) as f:
 in_contents = re.sub(r'\s*#include.*skip', '', in_contents)
 in_contents = re.sub(r'\s*#include', '//#include', in_contents)
 
+# in_contents = region_save_whitespace(in_contents)
 in_contents = builtins + in_contents
 
-decls_pos = decls_pattern.search(in_contents).end()
-in_contents = in_contents[:decls_pos] + region_save_whitespace(in_contents[decls_pos:])
+start_pos = start_pattern.search(in_contents).end()
+in_contents = in_contents[:start_pos] + region_save_whitespace(in_contents[start_pos:])
 
 proc = subprocess.Popen([gcc,
     '-E', '-', '-o', args.outfile,
@@ -149,6 +162,7 @@ out_parts.insert(2, main_code)
 out_contents = '\n'.join(out_parts)
 
 out_contents = decls_pattern.sub('', out_contents)
+out_contents = start_pattern.sub('', out_contents)
 out_contents = re.sub(r'(?<!\n)#include', '\n#include', out_contents)
 out_contents = re.sub(r'\n{3,}', '\n\n', out_contents)
 

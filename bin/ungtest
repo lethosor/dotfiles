@@ -101,7 +101,7 @@ builtins = '''
 '''
 
 ident_pattern = r'[A-Za-z_][A-Za-z_0-9]*'
-test_call_pattern = re.compile(r'TEST\s*\(ID,ID\)'.replace('ID', r'\s*(' + ident_pattern + r')\s*'))
+test_call_pattern = re.compile(r'TEST\s*\(ID,\s*([A-Za-z_0-9]*)\)'.replace('ID', r'\s*(' + ident_pattern + r')\s*'))
 decls_pattern = re.compile(r'//\s*@DECL.*?S@.*\n', re.MULTILINE)
 start_pattern = re.compile(r'//\s*@START@.*\n', re.MULTILINE)
 

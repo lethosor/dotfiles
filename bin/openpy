@@ -5,9 +5,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument('module', help='module name')
 parser.add_argument('-p', '--path', '--print', action='store_true',
                     help='Display path only')
-parser.add_argument('-c', '-o', '-w', '--command', '--with', '--open-with',
-                    required=False, help='Command to execute when opening file',
-                    metavar='command')
+parser.add_argument('-c', '-e', '-o', '-w', '--command', '--editor', '--with',
+                    '--open-with',
+                    required=False, help='Command to use to opening file',
+                    metavar='editor', dest='editor')
 parser.add_argument('-v', '--version', type=str, required=False,
                     help="Python version", default=PY_VERSION)
 args = parser.parse_args(sys.argv[1:])
@@ -20,9 +21,12 @@ if args.version != PY_VERSION:
         sys.exit(4)
     sys.exit(subprocess.call([py_path] + sys.argv))
 
-OPEN = args.command if args.command is not None else (
-    os.environ['OPEN'] if 'OPEN' in os.environ else 'open'
-)
+editor = args.editor if args.editor is not None else 'open'
+for var in ('OPENPY_EDITOR', 'EDITOR', 'OPEN'):
+    if var in os.environ:
+        editor = os.environ[var]
+        break
+
 try:
     module = importlib.import_module(args.module)
     if not hasattr(module, '__file__'):
@@ -31,7 +35,7 @@ try:
     if args.path:
         print(path)
     else:
-        subprocess.call([OPEN, path])
+        subprocess.call(editor.split() + [path])
 except ImportError:
     print('Module "%s" not found' % args.module)
     sys.exit(2)

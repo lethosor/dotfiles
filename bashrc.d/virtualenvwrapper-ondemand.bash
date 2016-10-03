@@ -32,7 +32,7 @@ if [[ $(type -t workon) != function ]]; then
         [[ -n $_pp ]] && export PYTHONPATH="$_pp"
 
         # Did loading work?
-        if [[ $status != 0 || $(type -t "$1") != function ]]; then
+        if [[ $status != 0 || ( -n "$1" && $(type -t "$1") != function ) ]]; then
             echo "Error loading virtualenvwrapper, sorry" >&2
             return $status
         fi

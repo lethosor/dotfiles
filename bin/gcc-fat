@@ -29,7 +29,7 @@ for i, arg in enumerate(args):
         output_name = arg[2:]
         break
 if not output_name:
-    fatal('no output file specified', code=2)
+    sys.exit(subprocess.call([compiler] + sys.argv[1:]))
 
 def output_path(arch):
     return os.path.join(tmpdir, 'tmp-' + str(arch))

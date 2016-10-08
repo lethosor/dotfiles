@@ -1,0 +1,79 @@
+#!/bin/sh
+
+usage() {
+    cat << EOF >&2
+usage: $0 [-36rv] test
+    -3: 32-bit
+    -6: 64-bit (default)
+    -p: print source (skip compile step)
+    -r: raw (no cout)
+EOF
+}
+
+if [ -z "$CXX" ]; then
+    CXX=g++
+fi
+
+args=$(getopt pr36 $*)
+if [ $? != 0 ]; then
+    usage
+    exit 2
+fi
+set -- $args
+
+raw=
+print=
+arch=64
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -p)
+            print=1
+            ;;
+        -r)
+            raw=1
+            ;;
+        -3|-32|-m32)
+            arch=32
+            ;;
+        -6|-64|-m64)
+            arch=64
+            ;;
+        --)
+            shift
+            break
+    esac
+    shift
+done
+
+expr="$*"
+headers="string vector iostream iomanip cstdio numeric algorithm cmath cstring"
+
+filename=$(mktemp)
+touch "$filename.cpp"
+trap "rm '$filename.cpp'" EXIT
+trap "rm '$filename'" EXIT
+
+exec 3> "$filename.cpp"
+
+for header in $headers; do
+    echo "#include <$header>" >&3
+done
+
+echo "using namespace std; int main(int argc, char **argv) {" >&3
+if [ -n "$raw" ]; then
+    echo "$expr;" >&3
+else
+    echo "cout << ($expr) << endl;" >&3
+fi
+echo "return 0;}" >&3
+
+exec 3>&-
+
+if [ -n "$print" ]; then
+    cat "$filename.cpp"
+    exit 0
+fi
+
+set -e
+"$CXX" -std=c++11 "$filename.cpp" -o "$filename" -m"$arch" -Wall -Wno-unused-variable
+"$filename"

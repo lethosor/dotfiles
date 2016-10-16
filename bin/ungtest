@@ -112,13 +112,15 @@ with open(args.infile) as f:
     in_contents = f.read()
 
 in_contents = re.sub(r'\s*#include.*skip', '', in_contents)
-in_contents = re.sub(r'\s*#include', '//#include', in_contents)
+in_contents = re.sub(r'\s*#include(?!.*force)', '//#include', in_contents)
 
-# in_contents = region_save_whitespace(in_contents)
 in_contents = builtins + in_contents
 
 start_pos = start_pattern.search(in_contents).end()
 in_contents = in_contents[:start_pos] + region_save_whitespace(in_contents[start_pos:])
+
+# avoid leading @@*/ before forced includes by adding newline
+in_contents = in_contents.replace('@@*/#include', '@@*/\n#include')
 
 proc = subprocess.Popen([gcc,
     '-E', '-', '-o', args.outfile,

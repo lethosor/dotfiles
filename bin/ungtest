@@ -91,7 +91,7 @@ gcc = os.environ.get('CXX', 'g++')
 
 builtins = '''
 #define ASSERT_TRUE(x) assert(x)
-#define ASSERT_FALSE(x) assert(x)
+#define ASSERT_FALSE(x) assert(!(x))
 #define ASSERT_EQ(x, y) assert(x == y)
 #define ASSERT_NE(x, y) assert(x != y)
 #define ASSERT_LE(x, y) assert(x <= y)

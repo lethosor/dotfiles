@@ -1,0 +1,2 @@
+#!/bin/sh
+/usr/bin/top -ocpu -R -F -s 3 -n30

@@ -1,0 +1,55 @@
+#!/usr/bin/env python
+"""
+Checks files for non-ASCII whitespace characters that are hard to notice
+"""
+
+from __future__ import unicode_literals
+
+import argparse
+import io
+import sys
+
+blacklist = {
+    '\u00a0': 'no-break space',
+
+    '\u2000': 'en quad',
+    '\u2001': 'em quad',
+    '\u2002': 'en space',
+    '\u2003': 'em space',
+    '\u2004': 'three-per-em space',
+    '\u2005': 'four-per-em space',
+    '\u2006': 'six-per-em space',
+    '\u2007': 'figure space',
+    '\u2008': 'punctuation space',
+    '\u2009': 'thin space',
+    '\u200a': 'hair space',
+    '\u200b': 'zero-width space',
+    '\u200c': 'zero-width non-joiner',
+    '\u200d': 'zero-width joiner',
+    '\u200e': 'left-to-right mark',
+    '\u200f': 'right-to-left mark',
+
+    '\u202f': 'narrow no-break space',
+    '\u205f': 'medium mathematical space',
+    '\u3000': 'ideographic space',
+}
+
+parser = argparse.ArgumentParser()
+parser.add_argument('files', metavar='file', nargs='+',
+    help='one or more files to check')
+parser.add_argument('-v', '--verbose', action='store_true')
+args = parser.parse_args()
+
+success = True
+for file in args.files:
+    if args.verbose:
+        print('checking %s' % file)
+    with io.open(file, encoding='utf-8') as f:
+        for line_number, line in enumerate(f.readlines()):
+            for char in blacklist:
+                if char in line:
+                    success = False
+                    sys.stderr.write('%s:%i: contains %s (%r) (%i)\n' %
+                        (file, line_number + 1, blacklist[char], char, line.count(char)))
+
+sys.exit(int(not success))

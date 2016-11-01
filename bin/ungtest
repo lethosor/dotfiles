@@ -85,6 +85,8 @@ parser.add_argument('infile', type=str)
 parser.add_argument('-o', '--outfile', type=str, required=True)
 parser.add_argument('-m', '--main', help='main function name', default='main')
 parser.add_argument('-i', '--indent', help='characters to use for indenting main function', default='    ')
+parser.add_argument('-I', action='append', dest='include_paths', default=[],
+    help='Preprocessor include paths')
 args = parser.parse_args()
 
 gcc = os.environ.get('CXX', 'g++')
@@ -122,11 +124,14 @@ in_contents = in_contents[:start_pos] + region_save_whitespace(in_contents[start
 # avoid leading @@*/ before forced includes by adding newline
 in_contents = in_contents.replace('@@*/#include', '@@*/\n#include')
 
-proc = subprocess.Popen([gcc,
+cpp_args = [gcc,
     '-E', '-', '-o', args.outfile,
     '-C', # keep comments
     '-P', # leave out debug info
-], stdin=subprocess.PIPE)
+]
+for path in args.include_paths:
+    cpp_args.extend(['-I', path])
+proc = subprocess.Popen(cpp_args, stdin=subprocess.PIPE)
 proc.communicate(input=in_contents.encode('utf-8'))
 
 with open(args.outfile) as f:

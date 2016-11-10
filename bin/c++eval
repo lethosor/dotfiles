@@ -48,7 +48,7 @@ done
 expr="$*"
 headers="string vector iostream iomanip cstdio numeric algorithm cmath cstring"
 
-filename=$(mktemp)
+filename=$(mktemp -t cppeval)
 touch "$filename.cpp"
 trap "rm '$filename.cpp'" EXIT
 trap "rm '$filename'" EXIT

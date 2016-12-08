@@ -19,7 +19,7 @@ def hex2rgb(s):
 def rgb2hex(rgb):
     if len(rgb) != 3:
         raise ValueError('Invalid RGB color')
-    return '#' + ''.join([hex(int(max(0, min(255, x))))[2:] for x in rgb])
+    return '#' + ''.join([hex(int(max(0, min(255, x))))[2:].zfill(2) for x in rgb])
 
 def rgb2applescript(rgb):
     if len(rgb) != 3:

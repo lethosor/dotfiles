@@ -1,0 +1,19 @@
+#!/usr/bin/env python
+import sys
+import time
+
+def str_time(t):
+    return '%02i:%02i:%02i' % (t / 3600, (t / 60) % 60, t % 60)
+
+def display_time(t):
+    sys.stdout.write((' ' * 20) + '\r' + str_time(t))
+    sys.stdout.flush()
+
+t = int(sys.argv[1])
+
+for i in range(t, 0, -1):
+    display_time(i)
+    time.sleep(1)
+
+display_time(0)
+print('')

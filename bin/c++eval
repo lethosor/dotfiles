@@ -75,5 +75,5 @@ if [ -n "$print" ]; then
 fi
 
 set -e
-"$CXX" -std=c++11 "$filename.cpp" -o "$filename" -m"$arch" -Wall -Wno-unused-variable
+"$CXX" -std=c++11 "$filename.cpp" -o "$filename" -m"$arch" -Wall -Wno-unused-variable $CXXFLAGS
 "$filename"

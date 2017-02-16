@@ -1,6 +1,6 @@
 #!/bin/sh
 if [ "$#" != 1 ]; then
-	echo "usage: $0 expr"
+	echo "usage: $(basename "$0") expr"
 	exit 1
 else
 	echo "$1" | bc -l

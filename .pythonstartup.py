@@ -5,10 +5,7 @@ try:
 except ImportError:
     pass
 else:
-    is_libedit = False
-    if sys.platform.startswith('darwin'):
-        if sys.executable.startswith('/System') or sys.executable.startswith('/usr/bin'):
-            is_libedit = True
+    is_libedit = ('libedit' in readline.__doc__.lower())
     if not is_libedit:
         readline.parse_and_bind("tab: complete")
     else:

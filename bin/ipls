@@ -1,0 +1,45 @@
+#!/usr/bin/env python
+from __future__ import print_function
+import argparse
+import netifaces
+import sys
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-4', '--ipv4', action='store_true', help='List IPv4 addresses')
+parser.add_argument('-6', '--ipv6', action='store_true', help='List IPv6 addresses')
+parser.add_argument('-n', '--names', action='store_true', help='List interface names and addresses')
+parser.add_argument('-o', '--names-only', action='store_true', help='List interface names only')
+parser.add_argument('interfaces', nargs='*', metavar='interface', help='List only the specified interfaces')
+args = parser.parse_args()
+if not args.ipv4 and not args.ipv6:
+    args.ipv4 = True
+
+interfaces_specified = bool(args.interfaces)
+interfaces = args.interfaces or netifaces.interfaces()
+
+for interface in interfaces:
+    try:
+        addrs = netifaces.ifaddresses(interface)
+    except ValueError:
+        sys.stderr.write('Unknown interface: %s\n' % interface)
+        continue
+    if args.names_only:
+        print(interface)
+        continue
+
+    def print_addr(addr):
+        if args.names:
+            print(interface, addr)
+        else:
+            print(addr)
+    found_addr = False
+    if args.ipv4 and netifaces.AF_INET in addrs:
+        for a in addrs[netifaces.AF_INET]:
+            print_addr(a['addr'])
+            found_addr = True
+    if args.ipv6 and netifaces.AF_INET6 in addrs:
+        for a in addrs[netifaces.AF_INET6]:
+            print_addr(a['addr'])
+            found_addr = True
+    if not found_addr and interfaces_specified:
+        sys.stderr.write('No addresses on interface: %s\n' % interface)

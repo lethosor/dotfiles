@@ -2,11 +2,16 @@
 import sys
 import time
 
+def set_title(title):
+    sys.stdout.write('\033]0;%s\007' % title)
+
 def str_time(t):
     return '%02i:%02i:%02i' % (t / 3600, (t / 60) % 60, t % 60)
 
 def display_time(t):
-    sys.stdout.write((' ' * 20) + '\r' + str_time(t))
+    s = str_time(t)
+    sys.stdout.write((' ' * 20) + '\r' + s)
+    set_title(s)
     sys.stdout.flush()
 
 t = int(sys.argv[1])
@@ -16,4 +21,5 @@ for i in range(t, 0, -1):
     time.sleep(1)
 
 display_time(0)
+set_title('')
 print('')

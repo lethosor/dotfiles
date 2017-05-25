@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import atexit
+import math
 import sys
 import time
 
@@ -10,17 +11,22 @@ atexit.register(set_title)
 def str_time(t):
     return '%02i:%02i:%02i' % (t / 3600, (t / 60) % 60, t % 60)
 
-def display_time(t):
-    s = str_time(t)
-    sys.stdout.write((' ' * 20) + '\r' + s)
-    set_title(s)
+def display(msg):
+    sys.stdout.write((' ' * 20) + '\r' + msg)
     sys.stdout.flush()
+    set_title(msg)
 
 t = int(sys.argv[1])
+t_end = t + time.time()
 
-for i in range(t, 0, -1):
-    display_time(i)
-    time.sleep(1)
+msg = str_time(t)
+display(msg)
+while t > 0:
+    time.sleep(0.5)
+    old_msg = msg
+    t = math.ceil(t_end - time.time())
+    msg = str_time(t)
+    if msg != old_msg:
+        display(msg)
 
-display_time(0)
 print('')

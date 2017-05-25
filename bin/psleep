@@ -13,10 +13,30 @@ def str_time(t):
 
 def display(msg):
     sys.stdout.write((' ' * 20) + '\r' + msg)
-    sys.stdout.flush()
     set_title(msg)
+    sys.stdout.flush()
 
-t = int(sys.argv[1])
+parsers = []
+parsers.append(int)
+
+@parsers.append
+def human_readable_time(value):
+    parts = list(map(int, value.split(':')))
+    if len(parts) in (2, 3):
+        if len(parts) == 2:
+            parts.insert(0, 0)
+        t = (parts[0] * 3600) + (parts[1] * 60) + parts[2]
+        return t
+
+for p in parsers:
+    try:
+        t = int(p(sys.argv[1]))
+        break
+    except ValueError:
+        pass
+else:
+    raise ValueError("Could not parse time from %r" % sys.argv[1])
+
 t_end = t + time.time()
 
 msg = str_time(t)

@@ -1,0 +1,3 @@
+#!/bin/bash
+echo $DYLD_LIBRARY_PATH
+python "$(dirname "$0")/_py-rebind.py" "$@"

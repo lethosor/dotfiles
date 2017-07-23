@@ -9,6 +9,7 @@ export PS1="[\t] $_host\W\${git_branch:+ \[$txtgrn\]\$git_branch\[$txtred\]\$git
 unset _host
 
 export EDITOR="subl --wait --new-window"
+export OPENPY_EDITOR="subl"
 
 export LSCOLORS=ExGxBxDxCxEgEdxbxgxcxd
 export CLICOLOR=1

@@ -21,11 +21,13 @@ if args.version != PY_VERSION:
         sys.exit(4)
     sys.exit(subprocess.call([py_path] + sys.argv))
 
-editor = args.editor if args.editor is not None else 'open'
-for var in ('OPENPY_EDITOR', 'EDITOR', 'OPEN'):
-    if var in os.environ:
-        editor = os.environ[var]
-        break
+editor = args.editor
+if editor is None:
+    editor = 'open'
+    for var in ('OPENPY_EDITOR', 'EDITOR', 'OPEN'):
+        if var in os.environ:
+            editor = os.environ[var]
+            break
 
 try:
     module = importlib.import_module(args.module)

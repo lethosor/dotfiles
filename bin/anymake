@@ -1,0 +1,11 @@
+#!/bin/sh
+cmd="$1"
+anybar yellow "$ANYBAR_PORT"
+make "$@"
+code=$?
+if [ $code = 0 ]; then
+    anybar green "$ANYBAR_PORT"
+else
+    anybar red "$ANYBAR_PORT"
+fi
+exit $code

@@ -1,0 +1,8 @@
+#!/bin/sh
+os=$(uname -s)
+if [ "$os" = "Darwin" ]; then
+    security find-generic-password -w -D "AirPort network password" -a "$1"
+else
+    echo >&2 "Unsupported OS"
+    exit 1
+fi

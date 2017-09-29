@@ -7,5 +7,5 @@ url="$1"
 file="$2"
 shift
 shift
-youtube-dl --extract-audio --prefer-ffmpeg --audio-format mp3 --output "$file.%(ext)s" "$url" "$@"
+youtube-dl --extract-audio --prefer-ffmpeg --no-mtime --audio-format mp3 --output "$file.%(ext)s" "$url" "$@"
 exit $?

@@ -50,8 +50,7 @@ headers="string vector iostream iomanip cstdio numeric algorithm cmath cstring"
 
 filename=$(mktemp -t cppeval)
 touch "$filename.cpp"
-trap "rm '$filename.cpp'" EXIT
-trap "rm '$filename'" EXIT
+trap "rm '$filename.cpp'; rm '$filename'" EXIT
 
 exec 3> "$filename.cpp"
 

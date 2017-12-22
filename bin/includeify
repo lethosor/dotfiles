@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+
+import hashlib, os, sys
+
+def get_filename(line):
+    return 'line_%s.h' % hashlib.sha1(line).hexdigest()
+
+dest_folder = 'includified'
+
+filenames = sys.argv[1:]
+
+lines = {}
+out_lines = {}
+
+if not os.path.exists(dest_folder):
+    os.mkdir(dest_folder)
+
+for filename in filenames:
+    with open(filename) as f:
+        lines[filename] = f.readlines()
+        out_lines = list(map(lambda line: '#include "%s"' % get_filename(line), lines[filename]))
+    with open(os.path.join(dest_folder, filename), 'w') as f:
+        f.write('\n'.join(out_lines))
+
+all_lines = set()
+for filename in lines:
+    all_lines |= set(lines[filename])
+
+for i, line in enumerate(all_lines):
+    sys.stdout.write('Writing files: {0}%\r'.format(100 * (i + 1) // len(all_lines)))
+    sys.stdout.flush()
+    with open(os.path.join(dest_folder, get_filename(line)), 'w') as f:
+        f.write(line)
+
+sys.stdout.write('\n')

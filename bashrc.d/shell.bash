@@ -15,3 +15,5 @@ export LSCOLORS=ExGxBxDxCxEgEdxbxgxcxd
 export CLICOLOR=1
 export GREP_OPTIONS='--color=auto'
 export GREP_COLOR='1;31'
+
+export CDPATH=

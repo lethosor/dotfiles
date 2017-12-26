@@ -1,0 +1,29 @@
+#!/bin/sh
+
+set -e
+pwd="$(pwd)"
+
+major="$1"
+minor="$2"
+
+(test $(printf "$major" | wc -c) = 2 && test $(printf "$minor" | wc -c) = 2) || \
+    (echo "bad version" && exit 1)
+
+dfdir="$pwd/0.$major.$minor"
+mkdir "$dfdir"
+cd "$dfdir"
+mkdir {win,linux,osx}{32,64}
+
+wget "http://www.bay12games.com/dwarves/df_${major}_${minor}_win_s.zip"
+wget "http://www.bay12games.com/dwarves/df_${major}_${minor}_linux.tar.bz2"
+wget "http://www.bay12games.com/dwarves/df_${major}_${minor}_osx.tar.bz2"
+wget "http://www.bay12games.com/dwarves/df_${major}_${minor}_win32_s.zip"
+wget "http://www.bay12games.com/dwarves/df_${major}_${minor}_linux32.tar.bz2"
+wget "http://www.bay12games.com/dwarves/df_${major}_${minor}_osx32.tar.bz2"
+
+(cd win64 && unzip ../df_${major}_${minor}_win_s.zip)
+(cd win32 && unzip ../df_${major}_${minor}_win32_s.zip)
+(cd linux64 && tar xvf ../df_${major}_${minor}_linux.tar.bz2)
+(cd linux32 && tar xvf ../df_${major}_${minor}_linux32.tar.bz2)
+(cd osx64 && tar xvf ../df_${major}_${minor}_osx.tar.bz2)
+(cd osx32 && tar xvf ../df_${major}_${minor}_osx32.tar.bz2)

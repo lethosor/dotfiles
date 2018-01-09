@@ -1,7 +1,18 @@
 #!/bin/sh
 # Add GitHub fork as a remote
-# "origin" URL must be "protocol://.../owner/repo" format (not SSH)
 set -e
+
+# http://stackoverflow.com/a/8811800
+contains() {
+    string="$1"
+    substring="$2"
+    if test "${string#*$substring}" != "$string"
+    then
+        return 0    # $substring is in $string
+    else
+        return 1    # $substring is not in $string
+    fi
+}
 
 echo_run() {
     echo "$(tput bold)==>" "$@$(tput sgr0)"
@@ -14,7 +25,14 @@ if [ -z "$REPO_OWNER" ]; then
     exit 1
 fi
 
-REPO_URL=$(git config --get remote.origin.url | awk 'BEGIN{FS=OFS="/"} {$(NF-1)="'"$REPO_OWNER"'"; print}')
+ORIGIN_URL=$(git config --get remote.origin.url)
+if contains "$ORIGIN_URL" "://"; then
+    # https://, git://, etc.
+    REPO_URL=$(echo $ORIGIN_URL | awk 'BEGIN{FS=OFS="/"} {$(NF-1)="'"$REPO_OWNER"'"; print}')
+elif contains "$ORIGIN_URL" ":"; then
+    # user@host:repo
+    REPO_URL=$(echo $ORIGIN_URL | awk '{gsub(/:(.+)\//,":'"$REPO_OWNER"'/",$0);print}')
+fi
 
 echo_run git remote add "$REPO_OWNER" "$REPO_URL"
 echo_run git fetch "$REPO_OWNER"

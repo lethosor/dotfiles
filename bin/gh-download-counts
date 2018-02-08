@@ -7,5 +7,8 @@ else:
 repo, tag = sys.argv[1], sys.argv[2]
 response = urlopen('https://api.github.com/repos/%s/releases/tags/%s' % (repo, tag))
 res = json.load(codecs.getreader('utf-8')(response))
+if 'message' in res:
+    print(res['message'])
+    sys.exit(1)
 for asset in res['assets']:
     print('%-5i %s' % (asset['download_count'], asset['name']))

@@ -19,7 +19,7 @@ def hex2rgb(s):
 def rgb2hex(rgb):
     if len(rgb) != 3:
         raise ValueError('Invalid RGB color')
-    return '#' + ''.join([hex(int(max(0, min(255, x))))[2:].zfill(2) for x in rgb])
+    return ''.join([hex(int(max(0, min(255, x))))[2:].zfill(2) for x in rgb])
 
 def rgb2applescript(rgb):
     if len(rgb) != 3:
@@ -65,7 +65,7 @@ class Terminal:
             print('color-ssh: not coloring ssh session')
 
     def color_xterm(self, rgb):
-        sys.stdout.write('\033]11;%s\007' % rgb2hex(rgb))
+        sys.stdout.write('\033]11;#%s\007' % rgb2hex(rgb))
         sys.stdout.flush()
 
     def color_apple(self, rgb):
@@ -75,6 +75,10 @@ class Terminal:
             % (os.ttyname(sys.stdout.fileno()), rgb2applescript(rgb))])
     color_Apple_Terminal = color_apple
 
+    def color_iterm(self, rgb):
+        sys.stdout.write('\033]Ph%s\033\\' % rgb2hex(rgb))
+        sys.stdout.flush()
+
 if 'COLOR_SSH_TERM' in os.environ:
     terminal = Terminal(os.environ['COLOR_SSH_TERM'])
 elif 'SSH_TTY' in os.environ or 'SSH_CLIENT' in os.environ:
@@ -83,6 +87,8 @@ elif 'XTERM_VERSION' in os.environ:
     terminal = Terminal('xterm')
 elif os.environ.get('TERM_PROGRAM', '') == 'Apple_Terminal':
     terminal = Terminal('apple')
+elif os.environ.get('TERM_PROGRAM', '').lower().startswith('iterm'):
+    terminal = Terminal('iterm')
 elif os.environ.get('TERM', '').startswith('xterm'):
     terminal = Terminal('xterm')
 else:

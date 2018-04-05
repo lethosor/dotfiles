@@ -12,7 +12,7 @@ parser.add_argument('-c', '-e', '-o', '-w', '--command', '--editor', '--with',
 parser.add_argument('-v', '--version', type=str, required=False,
                     help="Python version", default=PY_VERSION)
 args = parser.parse_args(sys.argv[1:])
-if args.version != PY_VERSION:
+if not PY_VERSION.startswith(args.version):
     py_exec = 'python' + args.version
     try:
         py_path = subprocess.check_output(['which', py_exec]).decode().replace('\n', '').replace('\r', '')

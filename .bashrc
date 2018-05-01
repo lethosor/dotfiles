@@ -8,3 +8,7 @@ for script in ~/bashrc.d/*.bash; do
         . "$script"
     fi
 done
+
+for script in ~/bashrc.d/local/*.bash; do
+    . "$script"
+done

@@ -9,6 +9,6 @@ for script in ~/bashrc.d/*.bash; do
     fi
 done
 
-for script in ~/bashrc.d/local/*.bash; do
+for script in $(find ~/bashrc.d/local/ -name '*.bash'); do
     . "$script"
 done

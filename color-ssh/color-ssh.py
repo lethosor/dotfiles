@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-import collections, fnmatch, os, shlex, subprocess, sys
+import collections, fnmatch, os, shlex, subprocess, sys, time
 config = collections.OrderedDict()
 config_path = os.path.abspath(os.path.expanduser(os.environ.get('SSH_COLOR_PATH', '~/.ssh-colors.txt')))
 
@@ -105,7 +105,10 @@ if os.path.exists(config_path):
             sys.stderr.write("%s: Syntax error at line %i\n" % (config_path, line_id))
             continue
         try:
-            config[parts[0]] = hex2rgb(parts[1])
+            if parts[0].startswith('@'):
+                config[parts[0]] = parts[1]
+            else:
+                config[parts[0]] = hex2rgb(parts[1])
         except ValueError:
             sys.stderr.write("%s: Invalid color at line %i\n" % (config_path, line_id))
             continue
@@ -114,8 +117,17 @@ if not '*' in config:
     config['*'] = hex2rgb('#ffffaf')
 if not '<default>' in config:
     config['<default>'] = hex2rgb('#ffffff')
+in_test = False
 if len(sys.argv) >= 2:
     host = sys.argv[1]
+    test_host = config.get('@test', 'test')
+    if host == test_host:
+        in_test = True
+        if len(sys.argv) < 3:
+            sys.stderr.write('color-ssh: test mode requires a host or arguments\n')
+            exit()
+        host = sys.argv[2]
+        print('Testing SSH color. Press Ctrl-C to exit.')
 
     # Check whether this host is an alias defined in ~/.ssh/config
     ssh_config = parse_ssh_config()
@@ -144,7 +156,11 @@ def run_script(p):
 run_script('~/.bash/color-ssh-pre.sh')
 
 try:
-    subprocess.call(['ssh'] + sys.argv[1:])
+    if in_test:
+        # should be long enough
+        time.sleep(120)
+    else:
+        subprocess.call(['ssh'] + sys.argv[1:])
 except:
     print('\n')
 finally:

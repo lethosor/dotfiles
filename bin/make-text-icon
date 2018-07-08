@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+
+import argparse
+import hashlib
+import sys
+
+from PIL import Image, ImageDraw
+
+parser = argparse.ArgumentParser()
+parser.add_argument('lines', nargs='+', help='Lines of text')
+parser.add_argument('-o', '--output', required=True, help='Output path (PNG)')
+parser.add_argument('-s', '--size', type=int, default=128, help='Image size (both dimensions)')
+args = parser.parse_args()
+
+def str2color(s):
+    md5 = hashlib.md5(s).hexdigest()
+    parts = [int(md5[i:i+2], 16) for i in range(0, 6, 2)]
+    if max(parts) < 128:
+        parts[int(md5[:10], 16) % 3] += 128
+    return tuple(parts)
+
+image = Image.new('RGBA', (args.size, args.size), 'black')
+draw = ImageDraw.Draw(image)
+sizes = [draw.textsize(line) for line in args.lines]
+text_total_height = sum(size[1] + 2 for size in sizes)
+cur_y = (image.height - text_total_height) / 2
+for line, size in zip(args.lines, sizes):
+    w, h = size
+    draw.text(((image.width - w) / 2, cur_y), line, fill=str2color(line))
+    cur_y += h + 2
+
+image.save(args.output, 'PNG')

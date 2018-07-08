@@ -1,0 +1,3 @@
+#!/bin/sh
+
+make-text-icon -s 64 -o data/art/icon.png DF "$1" "$2"

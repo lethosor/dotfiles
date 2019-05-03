@@ -1,12 +1,17 @@
-export GITAWAREPROMPT=~/dotfiles/git-aware-prompt
-. "$GITAWAREPROMPT/main.sh"
+. "$HOME/dotfiles/deps/git-prompt.sh"
 
 _host=""
 if [ -n "$SSH_CONNECTION" ]; then
     _host="\h:"
 fi
-export PS1="[\t] $_host\W\${git_branch:+ \[$txtgrn\]\$git_branch\[$txtred\]\$git_dirty\[$txtrst\]}\$ "
+export PS1="[\t] $_host\W\$ "
+PROMPT_COMMAND="__git_ps1 '[\t] $_host\W' '\\\$ '"
 unset _host
+
+GIT_PS1_SHOWCOLORHINTS=1
+GIT_PS1_SHOWDIRTYSTATE=1
+GIT_PS1_STATESEPARATOR=
+GIT_PS1_SHOWUNTRACKEDFILES=1
 
 export EDITOR="subl --wait --new-window"
 export OPENPY_EDITOR="subl"

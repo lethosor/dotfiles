@@ -3,5 +3,5 @@
 if [ -n "$SSH_CONNECTION" ]; then
     emacs -nw "$@"
 else
-    $EDITOR "$@"
+    subl --wait --new-window "$@"
 fi

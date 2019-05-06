@@ -20,10 +20,6 @@ function unsafe-ssh {
     ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$@"
 }
 
-function grep {
-    command grep --color=auto "$@"
-}
-
 # maintain "-bash" vs "bash"
 if [[ "$(ps -p $$ -o command | tail -n1)" =~ ^- ]]; then
     alias reload='exec -l bash'

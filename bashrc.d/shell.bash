@@ -5,7 +5,7 @@ if [ -n "$SSH_CONNECTION" ]; then
     _host="\h:"
 fi
 export PS1="[\t] $_host\W\$ "
-PROMPT_COMMAND="__git_ps1 '[\t] $_host\W' '\\\$ '; $PROMPT_COMMAND"
+PROMPT_COMMAND="__git_ps1 '\${VIRTUAL_ENV:+(\$(basename \$VIRTUAL_ENV)) }[\t] $_host\W' '\\\$ '; $PROMPT_COMMAND"
 unset _host
 
 GIT_PS1_SHOWCOLORHINTS=1

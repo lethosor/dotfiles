@@ -22,7 +22,7 @@ function unsafe-ssh {
 
 # maintain "-bash" vs "bash"
 if [[ "$(ps -p $$ -o command | tail -n1)" =~ ^- ]]; then
-    alias reload='exec -l bash'
+    alias reload='test -n "$VIRTUAL_ENV" && deactivate; exec -l bash'
 else
-    alias reload='exec bash'
+    alias reload='test -n "$VIRTUAL_ENV" && deactivate; exec bash'
 fi

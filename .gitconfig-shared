@@ -1,0 +1,20 @@
+[color]
+	ui = true
+[push]
+	default = simple
+	recurseSubmodules = check
+[core]
+	excludesfile = ~/.gitignore
+	pager2 = less
+	editor = ~/dotfiles/bin/cli-editor
+[alias]
+	acommit = commit --amend --no-edit
+	co = checkout
+	cob = checkout -b
+	diffc = diff --cached
+	icommit = commit --allow-empty -m
+	logf = log --pretty=fuller
+	logh = log --pretty=\"%Cgreen%h%Creset: %s\"
+	st = status -s
+	stat = status
+	uc = ucommit

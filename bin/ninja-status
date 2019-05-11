@@ -1,0 +1,7 @@
+#!/bin/sh
+ninjas="$(pgrep ninja)"
+for ninja_pid in $ninjas; do
+    for pid in $(pgrep -P "$ninja_pid"); do
+        echo "$ninja_pid $pid $(ps -o command= $pid)"
+    done
+done

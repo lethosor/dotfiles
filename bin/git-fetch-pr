@@ -1,0 +1,3 @@
+#!/bin/sh
+(test -n "$1" && test -n "$2") || (echo "usage: $0 remote pr" && exit 1)
+git fetch "$1" "pull/$2/head:$1/pr/$2"

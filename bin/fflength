@@ -3,16 +3,20 @@ usage() {
     if [ -n "$1" ]; then
         echo "$@" 2>&1
     fi
-    echo "usage: $0 [-s|-sexagesimal] FILE" >&2
+    echo "usage: $0 [-s|-sexagesimal] [-f|-frames] FILE" >&2
     exit 1
 }
 
 file=
 flags=
+entries="format=duration"
 while [ "$#" -ne 0 ]; do
     case "$1" in
     -s|-sexagesimal)
         flags="$flags -sexagesimal"
+        ;;
+    -f|-frames)
+        entries="stream=nb_frames"
         ;;
     -h|-?|--help)
         usage
@@ -29,4 +33,4 @@ while [ "$#" -ne 0 ]; do
     shift
 done
 
-ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 $flags "$file"
+ffprobe -v error -show_entries "$entries" -of default=noprint_wrappers=1:nokey=1 $flags "$file"

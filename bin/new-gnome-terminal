@@ -1,0 +1,2 @@
+#!/bin/bash
+gnome-terminal --app-id "new-gnome-terminal.$1" & disown

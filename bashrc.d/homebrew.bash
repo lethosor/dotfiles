@@ -1,3 +1,5 @@
 if [ -n "$HOMEBREW_PREFIX" ]; then
     add_path PATH begin "$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin"
 fi
+export HOMEBREW_NO_INSTALL_CLEANUP=1
+export HOMEBREW_NO_UPDATE_CLEANUP=1

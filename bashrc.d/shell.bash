@@ -23,5 +23,5 @@ export GREP_COLOR='1;31'
 export CDPATH=
 
 if ps -p $(ps -p $$ -o ppid=) -o cmd 2>/dev/null | grep gnome-terminal >/dev/null; then
-    PROMPT_COMMAND="reset-title \"\$(basename \$(pwd))\"; $PROMPT_COMMAND"
+    PROMPT_COMMAND="reset-title \"\$(basename \"\$(pwd)\")\"; $PROMPT_COMMAND"
 fi

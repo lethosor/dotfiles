@@ -1,7 +1,22 @@
 #!/usr/bin/env python
 
 if __name__ == 'socket':
+    import os
     from os import environ
+    import shutil
+    import sys
+
+    tmpdir = os.path.dirname(__file__)
+    for path in sys.path:
+        if path == tmpdir:
+            continue
+        socket_path = os.path.join(path, 'socket.py')
+        if os.path.isfile(socket_path):
+            shutil.copyfile(socket_path, os.path.join(tmpdir, 'socket_orig.py'))
+            break
+    else:
+        raise RuntimeError('Could not find socket.py')
+
     import socket_orig
     for name in dir(socket_orig):
         globals()[name] = getattr(socket_orig, name)
@@ -34,7 +49,6 @@ elif __name__ == '__main__':
         shutil.rmtree(tmpdir)
 
     shutil.copyfile(os.path.abspath(__file__), os.path.join(tmpdir, 'socket.py'))
-    shutil.copyfile(socket.__file__, os.path.join(tmpdir, 'socket_orig.py'))
 
     if os.environ.get('PYTHONPATH', None):
         os.environ['PYTHONPATH'] = tmpdir + os.pathsep + os.environ['PYTHONPATH']

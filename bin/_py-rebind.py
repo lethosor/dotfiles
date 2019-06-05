@@ -34,7 +34,7 @@ elif __name__ == '__main__':
         shutil.rmtree(tmpdir)
 
     shutil.copyfile(os.path.abspath(__file__), os.path.join(tmpdir, 'socket.py'))
-    shutil.copyfile(socket.__file__, os.path.join(tmpdir, socket.__file__.replace('socket.py', 'socket_orig.py')))
+    shutil.copyfile(socket.__file__, os.path.join(tmpdir, 'socket_orig.py'))
 
     if os.environ.get('PYTHONPATH', None):
         os.environ['PYTHONPATH'] = tmpdir + os.pathsep + os.environ['PYTHONPATH']

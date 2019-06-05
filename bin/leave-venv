@@ -1,0 +1,13 @@
+#!/bin/bash
+prog="$(basename "$0" | sed s/-system//)"
+if [ "$prog" = "leave-venv" ]; then
+    prog="$1"
+    shift
+fi
+if [ -z "$prog" ]; then
+    echo "usage: $0 PROGRAM" >&2
+    exit 1
+fi
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+export PYTHONPATH=
+"$prog" "$@"

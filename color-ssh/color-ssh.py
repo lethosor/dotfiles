@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-import collections, fnmatch, os, shlex, subprocess, sys, time
+import argparse, collections, fnmatch, os, shlex, subprocess, sys, time
 config = collections.OrderedDict()
 config_path = os.path.abspath(os.path.expanduser(os.environ.get('SSH_COLOR_PATH', '~/.ssh-colors.txt')))
 
@@ -119,15 +119,26 @@ if not '<default>' in config:
     config['<default>'] = hex2rgb('#ffffff')
 in_test = False
 if len(sys.argv) >= 2:
-    host = sys.argv[1]
+    parser = argparse.ArgumentParser()
+    parser.add_argument('host')
+    parser.add_argument('test_host', nargs='?')
+    for arg_opt in 'bcDEeFIiJLlmOopQRSWw':
+        parser.add_argument('-' + arg_opt)
+    for no_arg_opt in '46AaCfGgKkMNnqsTtVvXxYy':
+        parser.add_argument('-' + no_arg_opt, action='store_true')
+    args, unknown = parser.parse_known_args()
+
+    host = args.host
     test_host = config.get('@test', 'test')
     if host == test_host:
         in_test = True
-        if len(sys.argv) < 3:
+        if args.test_host is None:
             sys.stderr.write('color-ssh: test mode requires a host or arguments\n')
             exit()
-        host = sys.argv[2]
+        host = args.test_host
         print('Testing SSH color. Press Ctrl-C to exit.')
+    elif unknown:
+        print('color-ssh: warning: unrecognized arguments: ' + ', '.join(unknown))
 
     # Check whether this host is an alias defined in ~/.ssh/config
     ssh_config = parse_ssh_config()

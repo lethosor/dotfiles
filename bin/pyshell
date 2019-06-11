@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+
+import os
+import sys
+
+if '_PYSHELL_STARTUP' in os.environ:
+    print('starting', os.environ['_PYSHELL_STARTUP'])
+    for fname in os.environ['_PYSHELL_STARTUP'].split(':'):
+        with open(fname, 'r') as f:
+            eval(compile(f.read(), fname, 'exec'))
+        del f
+    del fname
+    del os.environ['_PYSHELL_STARTUP']
+
+else:
+    import argparse
+
+    def die(s):
+        sys.stderr.write(s.rstrip('\n') + '\n')
+        sys.exit(1)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('name')
+    parser.add_argument('-v', '--version', help='Python version', type=float)
+    args = parser.parse_args()
+
+    fname = os.path.join(os.path.expanduser('~'), '.config', 'pyshell', '%s.py' % args.name)
+    if not os.path.isfile(fname):
+        die('File not found: %r' % fname)
+
+    startups = [fname]
+    if os.environ.get('PYTHONSTARTUP'):
+        startups = os.environ['PYTHONSTARTUP'].split(':') + startups
+    os.environ['PYTHONSTARTUP'] = os.path.abspath(__file__)
+    os.environ['_PYSHELL_STARTUP'] = ':'.join(startups)
+
+    python = 'python'
+    if args.version is not None:
+        python += '%g' % args.version
+
+    try:
+        os.execvp(python, [python])
+    except OSError as e:
+        die('%s: %s' % (python, e))

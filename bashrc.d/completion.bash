@@ -5,7 +5,7 @@ _git_ancestor() {
 }
 
 _git_fetch_pr() {
-    test -z "${words[2]}" && __gitcomp_nl "$(__git_remotes)"
+    test $cword = 2 && __gitcomp_nl "$(__git_remotes)"
 }
 
 _git_vpush() {

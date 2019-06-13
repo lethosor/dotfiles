@@ -4,7 +4,6 @@ import os
 import sys
 
 if '_PYSHELL_STARTUP' in os.environ:
-    print('starting', os.environ['_PYSHELL_STARTUP'])
     for fname in os.environ['_PYSHELL_STARTUP'].split(':'):
         with open(fname, 'r') as f:
             eval(compile(f.read(), fname, 'exec'))

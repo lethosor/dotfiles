@@ -8,6 +8,12 @@ _git_fetch_pr() {
     test $cword = 2 && __gitcomp_nl "$(__git_remotes)"
 }
 
+_git_prune_branches() {
+    case "$cur" in
+        --*) __gitcomp "--force --dry-run" ;;
+    esac
+}
+
 _git_vpush() {
     words[1]=push
     _git_push "$@"

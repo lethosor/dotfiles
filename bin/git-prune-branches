@@ -1,0 +1,25 @@
+#!/bin/bash
+
+usage() {
+    echo "usage: $0 [-n|--dry-run] [-f|--force]"
+    exit 1
+}
+
+dry_run=
+delete_flag="d"
+while test -n "$1"; do
+    case "$1" in
+        -n|--dry-run) dry_run=1 ;;
+        -f|--force) delete_flag="D" ;;
+        *) echo "unrecognized argument: $1"; usage ;;
+    esac
+    shift
+done
+
+git for-each-ref --format '%(refname:short) %(upstream:track)' refs/heads/ | grep '\[gone\]' | awk '{print $1}' | while read branch; do
+    if test -n "$dry_run"; then
+        echo "would delete: $branch"
+    else
+        git branch -"$delete_flag" "$branch"
+    fi
+done

@@ -23,3 +23,5 @@ _git_vpush() {
     words[1]=push
     _git_push "$@"
 }
+
+cmd_exists npm && . <(npm completion)

@@ -26,12 +26,17 @@ def check_existing_path(full_path, dest_path):
         if dest_path == realpath(dest_path):
             print('Error: Not linking %s: already exists' % dotfile)
         else:
-            print('Error: Not linking %s: already linked to %s' % (dotfile, realpath(dest_path)))
+            print('Not linking %s: already linked to %s' % (dotfile, realpath(dest_path)))
 
 def link_path(full_path, dest_path):
     print('Linking %s' % dotfile)
     symlink(full_path, dest_path)
 
+extra_links = {}
+with open('links.txt', 'r') as f:
+    for line in f:
+        parts = line.split()
+        extra_links[parts[0]] = parts[1]
 
 for dotfile in listdir(cur_path):
     if dotfile in blacklist:
@@ -52,5 +57,12 @@ for dotfile in listdir(cur_path):
             check_existing_path(full_path, dest_path)
         elif exists(dest_path):
             print('Error: Not linking %s: already exists and is not a directory' % dotfile)
+        else:
+            link_path(full_path, dest_path)
+
+    elif dotfile in extra_links:
+        dest_path = join(home_path, extra_links[dotfile])
+        if exists(dest_path):
+            check_existing_path(full_path, dest_path)
         else:
             link_path(full_path, dest_path)

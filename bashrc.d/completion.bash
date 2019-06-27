@@ -19,6 +19,10 @@ _git_prune_branches() {
     esac
 }
 
+_git_rprune() {
+    test $cword = 2 && __gitcomp_nl "$(__git_remotes)"
+}
+
 _git_vpush() {
     words[1]=push
     _git_push "$@"

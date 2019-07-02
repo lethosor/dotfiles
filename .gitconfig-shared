@@ -18,4 +18,5 @@
 	rprune = "!f() { if test -z \"$1\"; then echo 'usage: git rprune REMOTE'; exit 1; fi; git fetch \"$1\" && git remote prune \"$1\" && git prune-branches; }; f"
 	st = status -s
 	stat = status
+	test-merge = merge --no-commit --no-ff
 	uc = ucommit

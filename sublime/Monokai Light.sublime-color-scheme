@@ -58,14 +58,12 @@
         {
             "name": "Number",
             "scope": "constant.numeric",
-            "foreground": "var(purple)",
-            "font_style": "bold"
+            "foreground": "var(purple)"
         },
         {
             "name": "Built-in constant",
             "scope": "constant.language",
-            "foreground": "var(purple)",
-            "font_style": "bold"
+            "foreground": "var(purple)"
         },
         {
             "name": "User-defined constant",

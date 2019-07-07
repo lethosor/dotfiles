@@ -12,3 +12,7 @@ done
 for script in $(find ~/bashrc.d/local/ -name '*.bash'); do
     . "$script"
 done
+
+for script in $(echo "$BASHRC_EXTRA" | tr ':' '\n'); do
+    . "$script"
+done

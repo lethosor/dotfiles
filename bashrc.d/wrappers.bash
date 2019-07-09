@@ -3,6 +3,10 @@
 alias mv='mv -i'
 alias cp='cp -i'
 alias fail='tail -f'
+alias la='ls -A'
+alias ll='ls -alF'
+alias node="node --experimental-repl-await"
+alias ping='ping -c 1000'
 
 alias ssh="~/dotfiles/color-ssh/color-ssh.py"
 

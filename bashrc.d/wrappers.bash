@@ -18,8 +18,9 @@ function cd {
 function reload {
     if [ -n "$bash_profile_loaded" ]; then
         . ~/.bash_profile
+    else
+        . ~/.bashrc
     fi
-    . ~/.bashrc
 }
 
 function mcd {

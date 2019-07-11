@@ -1,7 +1,5 @@
 # Wrappers around built-in commands
 
-alias mv='mv -i'
-alias cp='cp -i'
 alias fail='tail -f'
 alias la='ls -A'
 alias ll='ls -alF'
@@ -9,6 +7,22 @@ alias node="node --experimental-repl-await"
 alias ping='ping -c 1000'
 
 alias ssh="~/dotfiles/color-ssh/color-ssh.py"
+
+function _default_confirm_arg {
+    local cmd="$1"
+    local args='-i'
+    shift
+    local opt OPTIND
+    while getopts ":ifn" opt; do
+        case "$opt" in
+            '?') ;;
+            *) args= ;;
+        esac
+    done
+    command "$cmd" $args "$@"
+}
+alias cp='_default_confirm_arg cp'
+alias mv='_default_confirm_arg mv'
 
 function cd {
     pushd -n "$(pwd)" >/dev/null

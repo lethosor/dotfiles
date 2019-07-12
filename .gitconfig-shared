@@ -11,6 +11,7 @@
 	acommit = commit --amend --no-edit
 	co = checkout
 	cob = checkout -b
+	count-commits = "!f() { git log \"${1:-HEAD}\" --pretty='%h' | wc -l; }; f"
 	diffc = diff --cached
 	icommit = commit --allow-empty -m
 	logf = log --pretty=fuller

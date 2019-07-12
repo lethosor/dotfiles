@@ -38,3 +38,18 @@ if [[ "$(type -t _minimal)" = "function" ]]; then
     # disable unzip/tar completion to allow files with unconventional extensions
     complete -F _minimal tar unzip
 fi
+
+_pyshell() {
+    local word="${COMP_WORDS[COMP_CWORD]}"
+    COMPREPLY=($(compgen -W "$(ls ~/.config/pyshell/*.py | while read line; do basename "$line"; done | awk -F. '{print $1}')" -- "$word"))
+} && complete -F _pyshell pyshell
+
+_tmux_list_sessions() {
+    local word="${COMP_WORDS[COMP_CWORD]}"
+    COMPREPLY=($(compgen -W "$(tmux ls | awk -F: '{print $1}')" -- "$word"))
+} && complete -F _tmux_list_sessions txa
+
+_tmux_shell() {
+    local word="${COMP_WORDS[COMP_CWORD]}"
+    COMPREPLY=($(compgen -W "$(ls ~/.config/tmux-shell/)" -- "$word"))
+} && complete -F _tmux_shell tmux-shell txs

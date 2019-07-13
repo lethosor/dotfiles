@@ -34,8 +34,10 @@ _git_vpush() {
 
 cmd_exists npm && . <(npm completion)
 
+# disable unzip/tar completion to allow files with unconventional extensions
+complete -r tar unzip 2>/dev/null
 if [[ "$(type -t _minimal)" = "function" ]]; then
-    # disable unzip/tar completion to allow files with unconventional extensions
+    # on linux, completions will be redefined automatically if undefined
     complete -F _minimal tar unzip
 fi
 

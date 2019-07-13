@@ -37,9 +37,11 @@ function _reload_all_check {
     if [[ "$_reload_all_cur" != "$_reload_all_last" ]]; then
         if [[ -n "$_reload_all_last" ]]; then
             echo "reload-all: updating $_reload_all_last -> $_reload_all_cur"
+            export _reload_all_last="$_reload_all_cur"
             reload
         fi
         export _reload_all_last="$_reload_all_cur"
     fi
 }
+_reload_all_check
 PROMPT_COMMAND="_reload_all_check; $PROMPT_COMMAND"

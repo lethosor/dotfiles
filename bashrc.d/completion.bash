@@ -43,7 +43,7 @@ fi
 
 _pyshell() {
     local word="${COMP_WORDS[COMP_CWORD]}"
-    COMPREPLY=($(compgen -W "$(ls ~/.config/pyshell/*.py | while read line; do basename "$line"; done | awk -F. '{print $1}')" -- "$word"))
+    COMPREPLY=($(compgen -W "$(ls ~/.config/pyshell/*.py 2>/dev/null | while read line; do basename "$line"; done | awk -F. '{print $1}')" -- "$word"))
 } && complete -F _pyshell pyshell
 
 _tmux_list_sessions() {
@@ -53,5 +53,5 @@ _tmux_list_sessions() {
 
 _tmux_shell() {
     local word="${COMP_WORDS[COMP_CWORD]}"
-    COMPREPLY=($(compgen -W "$(ls ~/.config/tmux-shell/)" -- "$word"))
+    COMPREPLY=($(compgen -W "$(ls ~/.config/tmux-shell/ 2>/dev/null)" -- "$word"))
 } && complete -F _tmux_shell tmux-shell txs

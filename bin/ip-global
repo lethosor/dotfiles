@@ -5,7 +5,7 @@ import argparse, json, sys
 if sys.version[0] == '2':
     from urllib2 import urlopen as _urlopen
 else:
-    from urllib.requests import urlopen as _urlopen
+    from urllib.request import urlopen as _urlopen
 
 callback_names = []
 def ip(func):

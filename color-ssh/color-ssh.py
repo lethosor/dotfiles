@@ -124,7 +124,7 @@ if not '<default>' in config:
     config['<default>'] = hex2rgb('#ffffff')
 in_test = False
 if len(sys.argv) >= 2:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('host')
     parser.add_argument('test_host', nargs='?')
     for arg_opt in 'bcDEeFIiJLlmOopQRSWw':

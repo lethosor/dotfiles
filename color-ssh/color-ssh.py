@@ -29,10 +29,14 @@ def rgb2applescript(rgb):
 def parse_ssh_config():
     config = collections.OrderedDict()
     cur = None
-    with open(os.path.expanduser('~/.ssh/config')) as f:
+    config_path = os.path.expanduser('~/.ssh/config')
+    if not os.path.isfile(config_path):
+        print('color-ssh: %s: not found' % config_path)
+        return config
+    with open(config_path) as f:
         for line in f.readlines():
             line = line.split()
-            if not line:
+            if not line or line[0].startswith('#'):
                 continue
             line[0] = line[0].lower()
             if line[0] == 'host':
@@ -40,7 +44,8 @@ def parse_ssh_config():
                 for host in line[1:]:
                     config[host] = cur
             elif cur is None:
-                raise ValueError('~/.ssh/config lines found before host')
+                raise ValueError('color-ssh: %s: line %r found before host' %
+                    (config_path, line))
             else:
                 cur[line[0]] = line[1]
     return config

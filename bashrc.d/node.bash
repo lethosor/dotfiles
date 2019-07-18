@@ -5,3 +5,5 @@ if [[ -f "$nvm_sh" ]]; then
     fi
     . "$nvm_sh"
 fi
+
+cmd_exists npm && . <(npm completion)

@@ -32,8 +32,6 @@ _git_vpush() {
     _git_push "$@"
 }
 
-cmd_exists npm && . <(npm completion)
-
 # disable unzip/tar completion to allow files with unconventional extensions
 complete -r tar unzip 2>/dev/null
 if [[ "$(type -t _minimal)" = "function" ]]; then

@@ -27,6 +27,14 @@ alias mv='_default_confirm_arg mv'
 function cd {
     pushd -n "$(pwd)" >/dev/null
     command cd "$@"
+    while [[ "$(dirs -p 2>/dev/null | wc -l)" -ge 4 ]]; do
+        if [[ "$(dirs +0)" = "$(dirs +2)" ]] && [[ "$(dirs +1)" = "$(dirs +3)" ]]; then
+            popd -n +3 >/dev/null
+            popd -n +2 >/dev/null
+        else
+            break
+        fi
+    done
 }
 
 function reload {

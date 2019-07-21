@@ -1,0 +1,6 @@
+#!/bin/sh
+# ninja + notification
+ninja "$@"
+group="ninja.$(basename $(git rev-parse --show-toplevel))"
+message="ninja: $(basename $(git rev-parse --show-toplevel)) finished [$*]"
+terminal-notifier -message "$message" -group "$group" -activate com.apple.Terminal >/dev/null

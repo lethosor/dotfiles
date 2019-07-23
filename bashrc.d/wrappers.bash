@@ -37,14 +37,6 @@ function cd {
     done
 }
 
-function reload {
-    if [ -n "$bash_profile_loaded" ]; then
-        . ~/.bash_profile
-    else
-        . ~/.bashrc
-    fi
-}
-
 function mcd {
     mkdir -p "$1"
     cd "$1"

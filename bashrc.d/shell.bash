@@ -26,6 +26,14 @@ if ps -p $(ps -p $$ -o ppid=) -o cmd 2>/dev/null | grep gnome-terminal >/dev/nul
     PROMPT_COMMAND="reset-title \"\$(basename \"\$(pwd)\")\"; $PROMPT_COMMAND"
 fi
 
+function reload {
+    if [ -n "$bash_profile_loaded" ]; then
+        . ~/.bash_profile
+    else
+        . ~/.bashrc
+    fi
+}
+
 function reload_all {
     date > ~/bashrc.d/.reload-all.date
     _reload_all_check

@@ -41,12 +41,12 @@ fi
 
 _pyshell() {
     local word="${COMP_WORDS[COMP_CWORD]}"
-    COMPREPLY=($(compgen -W "$(ls ~/.config/pyshell/*.py 2>/dev/null | while read line; do basename "$line"; done | awk -F. '{print $1}')" -- "$word"))
+    COMPREPLY=($(compgen -W "$(ls ~/.config/pyshell/*.py 2>/dev/null | while read line; do basename "$line"; done | cut -d. -f1)" -- "$word"))
 } && complete -F _pyshell pyshell
 
 _tmux_list_sessions() {
     local word="${COMP_WORDS[COMP_CWORD]}"
-    COMPREPLY=($(compgen -W "$(tmux ls | awk -F: '{print $1}')" -- "$word"))
+    COMPREPLY=($(compgen -W "$(tmux ls 2>/dev/null | cut -d: -f1)" -- "$word"))
 } && complete -F _tmux_list_sessions txa
 
 _tmux_shell() {

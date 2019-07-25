@@ -7,6 +7,8 @@ NO_COLOR = False
 if '--no-color' in sys.argv:
     sys.argv.remove('--no-color')
     NO_COLOR = True
+if not sys.stdout.isatty() or not sys.stderr.isatty():
+    NO_COLOR = True
 
 def hex2rgb(s):
     s = s.replace('#', '')
@@ -141,7 +143,11 @@ if len(sys.argv) >= 2:
             sys.stderr.write('color-ssh: test mode requires a host or arguments\n')
             exit()
         host = args.test_host
-        print('Testing SSH color. Press Ctrl-C to exit.')
+        if NO_COLOR:
+            sys.stderr.write('color-ssh: Color is disabled.\n')
+            sys.stderr.flush()
+        else:
+            print('Testing SSH color. Press Ctrl-C to exit.')
     elif unknown:
         print('color-ssh: warning: unrecognized arguments: ' + ', '.join(unknown))
 

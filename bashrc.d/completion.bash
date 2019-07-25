@@ -53,3 +53,11 @@ _tmux_shell() {
     local word="${COMP_WORDS[COMP_CWORD]}"
     COMPREPLY=($(compgen -W "$(ls ~/.config/tmux-shell/ 2>/dev/null)" -- "$word"))
 } && complete -F _tmux_shell tmux-shell txs
+
+_workon_fallback() {
+    local word="${COMP_WORDS[COMP_CWORD]}"
+    COMPREPLY=($(compgen -W "$(find ~/.virtualenvs/ -mindepth 1 -maxdepth 1 -type d 2>/dev/null | while read line; do basename "$line"; done)" -- "$word"))
+}
+if ! complete -p workon >/dev/null 2>&1; then
+    complete -F _workon_fallback workon
+fi

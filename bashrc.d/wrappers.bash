@@ -6,8 +6,6 @@ alias ll='ls -alF'
 alias node="node --experimental-repl-await"
 alias ping='ping -c 1000'
 
-alias ssh="~/dotfiles/color-ssh/color-ssh.py"
-
 function _default_confirm_arg {
     local cmd="$1"
     local args='-i'

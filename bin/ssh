@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+export PATH="$(which -a ssh | while read ssh; do
+    if [[ "$(realpath "$0")" != "$(realpath "$ssh")" ]]; then
+        printf "%s:" "$(dirname "$ssh")"
+    fi
+done)$PATH"
+~/dotfiles/color-ssh/color-ssh.py "$@"

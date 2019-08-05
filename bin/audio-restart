@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -e
+if type pacmd >/dev/null 2>&1; then
+    pacmd unload-module module-udev-detect
+    pacmd load-module module-udev-detect
+else
+    echo "$0: unsupported system" >&2
+    exit 1
+fi

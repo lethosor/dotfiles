@@ -13,3 +13,7 @@ if cmd_exists pyenv; then
     export PATH="$old_path"
     unset old_path
 fi
+
+if cmd_exists virtualenvwrapper_lazy.sh; then
+    . "$(which virtualenvwrapper_lazy.sh)"
+fi

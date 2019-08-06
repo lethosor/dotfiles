@@ -177,15 +177,17 @@ def run_script(p):
 
 run_script('~/.bash/color-ssh-pre.sh')
 
+exit_code = 0
 try:
     if in_test:
         # should be long enough
         time.sleep(120)
     else:
-        subprocess.call(['ssh'] + sys.argv[1:])
+        exit_code = subprocess.call(['ssh'] + sys.argv[1:])
 except:
     print('\n')
 finally:
     terminal.color(config['<default>'])
 
 run_script('~/.bash/color-ssh-post.sh')
+exit(exit_code)

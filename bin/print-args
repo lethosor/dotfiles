@@ -1,0 +1,19 @@
+#!/usr/bin/env python
+import argparse
+import os
+import sys
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-r', '--repr', action='store_true', help='Pass args through Python\'s repr()')
+parser.add_argument('-n', '--number', action='store_true', help='Number arguments')
+parser.add_argument('-c', '--count', '--count-only', action='store_true', help='Only print count')
+parser.add_argument('-0', '--include-0', action='store_true', help='Include argv[0]')
+args = parser.parse_args(os.environ.get('PRINT_ARGS_OPTS', '').split())
+
+argv = sys.argv[(0 if args.include_0 else 1):]
+if args.count:
+    print(len(argv))
+else:
+    for i, arg in enumerate(argv):
+        print(('%i: ' % i if args.number else '') +
+            (repr if args.repr else str)(arg))

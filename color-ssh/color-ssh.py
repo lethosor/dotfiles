@@ -1,7 +1,5 @@
 #! /usr/bin/env python
-import argparse, collections, fnmatch, os, shlex, subprocess, sys, time
-config = collections.OrderedDict()
-config_path = os.path.abspath(os.path.expanduser(os.environ.get('SSH_COLOR_PATH', '~/.ssh-colors.txt')))
+import argparse, fnmatch, os, subprocess, sys, time
 
 NO_COLOR = False
 if '--no-color' in sys.argv:
@@ -18,6 +16,12 @@ def hex2rgb(s):
         s = ''.join([2 * s[i] for i in range(3)])
     return tuple([int(s[i:i+2], 16) for i in range(0, 6, 2)])
 
+def hex2rgb_check(s):
+    try:
+        return hex2rgb(s)
+    except ValueError:
+        raise ValueError('Invalid hex color: %r' % s)
+
 def rgb2hex(rgb):
     if len(rgb) != 3:
         raise ValueError('Invalid RGB color')
@@ -29,28 +33,32 @@ def rgb2applescript(rgb):
     return '{%i, %i, %i, 0}' % tuple([max(0, min(255, x)) * 256 for x in rgb])
 
 def parse_ssh_config():
-    config = collections.OrderedDict()
-    cur = None
+    # returns a list of (host, key, value) tuples
+    config = []
+    cur_hosts = tuple()
     config_path = os.path.expanduser('~/.ssh/config')
     if not os.path.isfile(config_path):
         print('color-ssh: %s: not found' % config_path)
         return config
     with open(config_path) as f:
-        for line in f.readlines():
+        for line_id, line in enumerate(f.readlines()):
             line = line.split()
-            if not line or line[0].startswith('#'):
+            if not line:
                 continue
             line[0] = line[0].lower()
             if line[0] == 'host':
-                cur = {}
-                for host in line[1:]:
-                    config[host] = cur
-            elif cur is None:
-                raise ValueError('color-ssh: %s: line %r found before host' %
-                    (config_path, line))
+                cur_hosts = tuple(line[1:])
             else:
-                cur[line[0]] = line[1]
+                for host in cur_hosts:
+                    config.append((host, line[0], line[1]))
     return config
+
+def apply_ssh_config(config, hostname):
+    out = {}
+    for host, key, value in config:
+        if fnmatch.fnmatch(hostname, host) and not key.lower() in out:
+            out[key.lower()] = value
+    return out
 
 class Terminal:
     def __init__(self, name):
@@ -101,30 +109,10 @@ elif os.environ.get('TERM', '').startswith('xterm'):
 else:
     terminal = Terminal(os.environ.get('TERM', 'dumb'))
 
-if os.path.exists(config_path):
-    line_id = 0
-    for line in open(config_path):
-        line_id += 1
-        parts = shlex.split(line)
-        if not len(parts) or parts[0].startswith('#'):
-            continue
-        if len(parts) != 2:
-            sys.stderr.write("%s: Syntax error at line %i\n" % (config_path, line_id))
-            continue
-        try:
-            if parts[0].startswith('@'):
-                config[parts[0]] = parts[1]
-            else:
-                config[parts[0]] = hex2rgb(parts[1])
-        except ValueError:
-            sys.stderr.write("%s: Invalid color at line %i\n" % (config_path, line_id))
-            continue
-
-if not '*' in config:
-    config['*'] = hex2rgb('#ffffaf')
-if not '<default>' in config:
-    config['<default>'] = hex2rgb('#ffffff')
 in_test = False
+ssh_config = parse_ssh_config()
+base_config = apply_ssh_config(ssh_config, '*')
+
 if len(sys.argv) >= 2:
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('host')
@@ -136,7 +124,7 @@ if len(sys.argv) >= 2:
     args, unknown = parser.parse_known_args()
 
     host = args.host
-    test_host = config.get('@test', 'test')
+    test_host = base_config.get('#color.test', 'test')
     if host == test_host:
         in_test = True
         if args.test_host is None:
@@ -151,21 +139,9 @@ if len(sys.argv) >= 2:
     elif unknown:
         print('color-ssh: warning: unrecognized arguments: ' + ', '.join(unknown))
 
-    # Check whether this host is an alias defined in ~/.ssh/config
-    ssh_config = parse_ssh_config()
-    if host in ssh_config and 'hostname' in ssh_config[host]:
-        host = ssh_config[host]['hostname'].replace('%h', host)
-    else:
-        # Check for wildcard hostname matches
-        for host_pattern, host_config in ssh_config.items():
-            if fnmatch.fnmatch(host, host_pattern):
-                if 'hostname' in host_config:
-                    host = host_config['hostname'].replace('%h', host)
-
-    for k in config:
-        if fnmatch.fnmatch(host, k):
-            terminal.color(config[k])
-            break
+    host_config = apply_ssh_config(ssh_config, host)
+    if '#color' in host_config:
+        terminal.color(hex2rgb_check(host_config['#color']))
 
 def run_script(p):
     p = os.path.expanduser(p)
@@ -187,7 +163,7 @@ try:
 except:
     print('\n')
 finally:
-    terminal.color(config['<default>'])
+    terminal.color(hex2rgb_check(base_config.get('#color.base', '#888888')))
 
 run_script('~/.bash/color-ssh-post.sh')
 exit(exit_code)

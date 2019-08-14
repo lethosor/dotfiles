@@ -32,6 +32,10 @@ def rgb2applescript(rgb):
         raise ValueError('Invalid RGB color')
     return '{%i, %i, %i, 0}' % tuple([max(0, min(255, x)) * 256 for x in rgb])
 
+def clean_hostname(host):
+    # strip user from host
+    return host.split('@')[-1]
+
 def parse_ssh_config():
     # returns a list of (host, key, value) tuples
     config = []
@@ -139,6 +143,7 @@ if len(sys.argv) >= 2:
     elif unknown:
         print('color-ssh: warning: unrecognized arguments: ' + ', '.join(unknown))
 
+    host = clean_hostname(host)
     host_config = apply_ssh_config(ssh_config, host)
     if '#color' in host_config:
         terminal.color(hex2rgb_check(host_config['#color']))

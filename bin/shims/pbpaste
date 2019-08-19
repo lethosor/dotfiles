@@ -1,0 +1,10 @@
+#!/bin/sh
+#!/bin/sh
+if type xclip >/dev/null 2>&1; then
+    xclip -selection clipboard -o
+elif type xsel >/dev/null 2>&1; then
+    xsel --clipboard --output
+else
+    echo "$0: unsupported platform" >&2
+    exit 1
+fi

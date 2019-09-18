@@ -1,17 +1,21 @@
 #!/bin/bash
 # compare branch ancestry
 
-set -e
 b1="$1"
 b2="${2:-HEAD}"
 r1="$(git rev-parse "$b1")"
 r2="$(git rev-parse "$b2")"
 
+git merge-base --is-ancestor "$r1" "$r2"; a1=$?
+git merge-base --is-ancestor "$r2" "$r1"; a2=$?
+
 if [ "$r2" = "$r1" ]; then
     echo "$b1 and $b2 are identical"
-elif git merge-base --is-ancestor "$r1" "$r2"; then
+elif [ "$a1" = 0 ] && [ "$a2" = 0 ]; then
+    echo "$b1 and $b2 point to the same commit"
+elif [ "$a1" = 0 ]; then
     echo "$b1 is an ancestor of $b2"
-elif git merge-base --is-ancestor "$r2" "$r1"; then
+elif [ "$a2" = 0 ]; then
     echo "$b2 is an ancestor of $b1"
 else
     echo "$b1 and $b2 are not ancestors"

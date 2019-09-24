@@ -140,8 +140,6 @@ if len(sys.argv) >= 2:
             sys.stderr.flush()
         else:
             print('Testing SSH color. Press Ctrl-C to exit.')
-    elif unknown:
-        print('color-ssh: warning: unrecognized arguments: ' + ', '.join(unknown))
 
     host = clean_hostname(host)
     host_config = apply_ssh_config(ssh_config, host)

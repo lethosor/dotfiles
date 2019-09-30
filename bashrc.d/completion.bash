@@ -64,6 +64,6 @@ fi
 
 for cmd in kubectl minikube; do
     if cmd_exists "$cmd"; then
-        . <("$cmd" completion bash)
+        . <("$cmd" completion bash 2>/dev/null)
     fi
 done

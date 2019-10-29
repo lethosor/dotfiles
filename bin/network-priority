@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+set -e
+set -o pipefail
+
+case "$1" in
+    get)
+        if test -z "$2"; then
+            echo "usage: network-priority get CONNECTION" >&2
+            exit 2
+        fi
+        nmcli connection show "$2" | grep connection.autoconnect-priority | awk '{print $2}'
+        ;;
+    set)
+        if test -z "$2" || test -z "$3"; then
+            echo "usage: network-priority set CONNECTION PRIORITY" >&2
+            exit 2
+        fi
+        nmcli connection modify "$2" connection.autoconnect-priority "$3"
+        ;;
+    list)
+        nmcli -f name,autoconnect-priority connection
+        ;;
+    *)
+        echo "usage: $(basename $0) get|set|list ..." >&2
+        exit 2
+        ;;
+esac

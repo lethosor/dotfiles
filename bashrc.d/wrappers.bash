@@ -50,3 +50,7 @@ function txa {
     tmux attach -t "$1" 2>/dev/null || tmux new -s "$1"
 }
 alias txs=tmux-shell
+
+function silence {
+    "$@" >/dev/null 2>&1
+}

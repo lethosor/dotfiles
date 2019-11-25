@@ -54,3 +54,5 @@ alias txs=tmux-shell
 function silence {
     "$@" >/dev/null 2>&1
 }
+
+alias dc=docker-compose

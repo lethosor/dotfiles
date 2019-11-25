@@ -67,3 +67,5 @@ for cmd in kubectl minikube; do
         . <("$cmd" completion bash 2>/dev/null)
     fi
 done
+
+cmd_exists _docker_compose && complete -F _docker_compose dc

@@ -1,11 +1,16 @@
 #! /usr/bin/env python
-import os, sys
+import subprocess, sys
 queue = []
+tput_cache = {}
 def write(*args):
     sys.stdout.write(*args)
     sys.stdout.flush()
 def tput(*args):
-    os.system('tput ' + ''.join([str(i) for i in args]))
+    args = tuple(map(str, args))
+    if args not in tput_cache:
+        tput_cache[args] = subprocess.check_output(['tput'] + list(args))
+    sys.stdout.write(tput_cache[args])
+    sys.stdout.flush()
 def color(c):
     queue.append(c)
 def group(a, b):
@@ -25,7 +30,7 @@ def cflush(c, cmd):
     if c == ' ':
         write('    ')
     else:
-        tput(cmd + ' ', c)
+        tput(cmd, c)
         write('%4i' % c if cmd == 'setaf' else '    ')
 def flush():
     global queue
@@ -46,12 +51,3 @@ for i in range(16, 231, 12):
     gline(i + 6, i + 11)
 gline(232, 243)
 gline(244, 255)
-
-#for i in range(16):
-#    for j in range(16):
-#        c = 16 * i + j
-#        os.system('tput setaf %i' % c)
-#        sys.stdout.write('%4i' % c)
-#        sys.stdout.flush()
-#    print('')
-#os.system('tput sgr0')

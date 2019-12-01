@@ -37,7 +37,7 @@ while run:
                     match.group(0),
                     '--pretty=' + (spaces * 2) + '%Cgreen%h%Creset: %s'
                 ])))
-            elif 'new tag' in line.lower():
+            elif 'new tag' in line.lower() or 'new branch' in line.lower():
                 has_commits = True
 
     if args['--no-prompt'] or not has_commits:

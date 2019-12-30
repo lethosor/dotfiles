@@ -1,12 +1,14 @@
-[color]
-	ui = true
-[push]
-	default = simple
-	recurseSubmodules = check
 [core]
 	excludesfile = ~/.gitignore
 	pager2 = less
 	editor = ~/dotfiles/bin/cli-editor
+[color]
+	ui = true
+[commit]
+	cleanup = scissors
+[push]
+	default = simple
+	recurseSubmodules = check
 [alias]
 	acommit = commit --amend --no-edit
 	co = checkout

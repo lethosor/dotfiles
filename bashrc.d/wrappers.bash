@@ -56,3 +56,4 @@ function silence {
 }
 
 alias dc=docker-compose
+alias ku=kubectl

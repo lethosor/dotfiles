@@ -69,3 +69,4 @@ for cmd in kubectl minikube; do
 done
 
 cmd_exists _docker_compose && complete -F _docker_compose dc
+cmd_exists __start_kubectl && complete -o default -F __start_kubectl ku

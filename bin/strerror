@@ -1,0 +1,8 @@
+#!/usr/bin/env python
+import errno, os, sys
+for code in sys.argv[1:]:
+    code = int(code)
+    print('{code}: {msg}'.format(
+        code=errno.errorcode.get(code, '?'),
+        msg=os.strerror(code),
+    ))

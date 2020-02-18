@@ -4,6 +4,7 @@ if [[ -f "$nvm_sh" ]]; then
         nvm_sh="$(realpath "$nvm_sh")"
     fi
     . "$nvm_sh"
+    . "$HOME/.nvm/bash_completion"
 fi
 
 if cmd_exists npm && ! complete -p npm >/dev/null 2>&1; then

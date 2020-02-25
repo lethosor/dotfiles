@@ -4,8 +4,6 @@
 	editor = ~/dotfiles/bin/cli-editor
 [color]
 	ui = true
-[commit]
-	cleanup = scissors
 [push]
 	default = simple
 	recurseSubmodules = check

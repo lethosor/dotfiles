@@ -33,10 +33,11 @@ _git_vpush() {
 }
 
 # disable unzip/tar completion to allow files with unconventional extensions
-complete -r tar unzip 2>/dev/null
+# disable python completion because it breaks filename completion in script args
+complete -r tar unzip python python2 python3 pypy pypy3 2>/dev/null
 if [[ "$(type -t _minimal)" = "function" ]]; then
     # on linux, completions will be redefined automatically if undefined
-    complete -F _minimal tar unzip
+    complete -F _minimal tar unzip python python2 python3 pypy pypy3
 fi
 
 _pyshell() {

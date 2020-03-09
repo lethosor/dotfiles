@@ -8,17 +8,25 @@
 	default = simple
 	recurseSubmodules = check
 [alias]
+	abort-merge = merge --abort
 	acommit = commit --amend --no-edit
+	ad = add
+	cm = commit
 	co = checkout
 	cob = checkout -b
 	count-commits = "!f() { git log \"${1:-HEAD}\" --pretty='%h' | wc -l; }; f"
+	dc = diff --cached
+	df = diff
 	diffc = diff --cached
 	icommit = commit --allow-empty -m
 	logf = log --pretty=fuller
 	logh = log --pretty=\"%Cgreen%h%Creset: %s\"
+	pl = pull
+	ps = push
 	pul = pull
 	rprune = "!f() { if test -z \"$1\"; then echo 'usage: git rprune REMOTE'; exit 1; fi; git fetch \"$1\" && git remote prune \"$1\" && git prune-branches; }; f"
 	st = status -s
 	stat = status
 	test-merge = merge --no-commit --no-ff
+	tm = merge --no-commit --no-ff
 	uc = ucommit

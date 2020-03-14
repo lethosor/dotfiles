@@ -13,7 +13,7 @@ parser.add_argument('-s', '--size', type=int, default=128, help='Image size (bot
 args = parser.parse_args()
 
 def str2color(s):
-    md5 = hashlib.md5(s).hexdigest()
+    md5 = hashlib.md5(s.encode()).hexdigest()
     parts = [int(md5[i:i+2], 16) for i in range(0, 6, 2)]
     if max(parts) < 128:
         parts[int(md5[:10], 16) % 3] += 128

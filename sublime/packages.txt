@@ -1,0 +1,13 @@
+All Autocomplete
+Chmod
+Dockerfile Syntax Highlighting
+Git
+Gitignored File Excluder
+Jinja2
+nginx
+Package Control
+Project Specific Syntax Settings
+SideBarEnhancements
+SublimeCodeIntel
+Vue Syntax Highlight
+Wrap Plus

@@ -11,7 +11,9 @@ t2=$(get_timestamp)
 code=$?
 [ "$code" = 0 ] && codemsg=succeeded || codemsg=failed
 group="ninja.$(basename $(git rev-parse --show-toplevel))"
-message="ninja: $(basename $(git rev-parse --show-toplevel)) $codemsg [$*] in $((t2-t1))s"
+args="$*"
+[ -n "$args" ] && args=" [$args]"
+message="ninja: $(basename $(git rev-parse --show-toplevel)) ${codemsg}${args} in $((t2-t1))s"
 if type terminal-notifier >/dev/null 2>&1; then
     terminal-notifier -message "$message" -group "$group" -activate com.apple.Terminal >/dev/null
 elif type notify-send >/dev/null 2>&1; then

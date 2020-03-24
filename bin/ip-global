@@ -14,7 +14,7 @@ def ip(func):
 
 @ip
 def ip42pl():
-    return urlopen('http://ip.42.pl/raw').read()
+    return urlopen('http://ip.42.pl/raw').read().decode()
 @ip
 def jsonip():
     return json.load(urlopen('http://jsonip.com'))['ip']

@@ -63,7 +63,7 @@ if ! complete -p workon >/dev/null 2>&1; then
     complete -F _workon_fallback workon
 fi
 
-for cmd in kubectl minikube; do
+for cmd in kubectl minikube argocd; do
     if cmd_exists "$cmd"; then
         . <("$cmd" completion bash 2>/dev/null)
     fi
@@ -76,7 +76,7 @@ cmd_exists __start_kubectl && complete -o default -F __start_kubectl ku
 # aliases/wrappers, bash-completion (need to load)
 if cmd_exists __load_completion; then
     if cmd_exists ninja; then
-        __load_completion ninja 
+        __load_completion ninja
         cmd_exists _ninja_target && complete -F _ninja_target nninja
     fi
 fi

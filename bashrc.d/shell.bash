@@ -53,3 +53,7 @@ function _reload_all_check {
 }
 _reload_all_check
 PROMPT_COMMAND="_reload_all_check; $PROMPT_COMMAND"
+
+if [[ -t 0 ]]; then
+    PROMPT_COMMAND="stty $(stty -g); $PROMPT_COMMAND"
+fi

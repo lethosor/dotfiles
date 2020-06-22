@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python3
 import argparse, importlib, os, subprocess, sys
 PY_VERSION = '.'.join(list(str(i) for i in sys.version_info)[:2])
 parser = argparse.ArgumentParser()
@@ -30,10 +30,25 @@ if editor is None:
             break
 
 try:
-    module = importlib.import_module(args.module)
-    if not hasattr(module, '__file__'):
-        raise TypeError('Does not have a filename (likely built-in)')
-    path = module.__file__.replace('.pyc', '.py')
+    try:
+        from importlib.util import find_spec
+    except ImportError:
+        # fallback for python < 3.4
+        module = importlib.import_module(args.module)
+        if not hasattr(module, '__file__'):
+            raise TypeError('Does not have a filename (likely built-in)')
+        path = module.__file__.replace('.pyc', '.py')
+    else:
+        spec = find_spec(args.module)
+        if not spec:
+            raise ImportError
+        if not spec.has_location:
+            origin = spec.origin
+            if not origin and spec.loader:
+                origin = spec.loader.find_spec(args.module).origin
+            raise TypeError('Does not have a location (%s)' %
+                origin if origin else 'possibly built-in')
+        path = spec.origin
     if args.path:
         print(path)
     else:

@@ -1,1 +1,1 @@
-. ~/.cargo/env
+src_if_exists ~/.cargo/env

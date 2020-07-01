@@ -5,10 +5,13 @@
 [color]
 	ui = true
 [pull]
+	ff = true
 	rebase = false
 [push]
 	default = simple
 	recurseSubmodules = check
+[merge]
+	ff = false
 [alias]
 	abort-merge = merge --abort
 	acommit = commit --amend --no-edit

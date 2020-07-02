@@ -22,7 +22,9 @@
 	count-commits = "!f() { git log \"${1:-HEAD}\" --pretty='%h' | wc -l; }; f"
 	dc = diff --cached
 	df = diff
+	ds = diff --submodule=diff
 	diffc = diff --cached
+	diffs = diff --submodule=diff
 	icommit = commit --allow-empty -m
 	logf = log --pretty=fuller
 	logh = log --pretty=\"%Cgreen%h%Creset: %s\"

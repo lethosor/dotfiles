@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+import argparse, os, subprocess, sys
+
+parser = argparse.ArgumentParser()
+parser.add_argument('preset_name')
+parser.add_argument('-c', '--current-window', action='store_true')
+args = parser.parse_args()
+
+config_path = os.path.join(os.path.expanduser('~'), '.config', 'gnome-terminal-preset', args.preset_name)
+try:
+    with open(config_path) as f:
+        lines = f.readlines()
+except OSError as e:
+    exit(e)
+
+cmd = ['gnome-terminal']
+for i, line in enumerate(lines):
+    cmd.append('--window' if (i == 0 and not args.current_window) else '--tab')
+    cmd += ['--working-directory', os.path.expanduser(line.strip()), '--active']
+
+p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+out, err = p.communicate()
+if p.returncode != 0:
+    sys.stdout.write('Command %r exited with %i:\n' % (cmd, p.returncode))
+    sys.stderr.buffer.write(err)
+    exit(1)

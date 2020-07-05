@@ -55,6 +55,11 @@ _tmux_shell() {
     COMPREPLY=($(compgen -W "$(ls ~/.config/tmux-shell/ 2>/dev/null)" -- "$word"))
 } && complete -F _tmux_shell tmux-shell txs
 
+_gnome_terminal_preset() {
+    local word="${COMP_WORDS[COMP_CWORD]}"
+    COMPREPLY=($(compgen -W "$(ls ~/.config/gnome-terminal-preset/ 2>/dev/null)" -- "$word"))
+} && complete -F _gnome_terminal_preset gnome-terminal-preset gt
+
 _workon_fallback() {
     local word="${COMP_WORDS[COMP_CWORD]}"
     COMPREPLY=($(compgen -W "$(find ~/.virtualenvs/ -mindepth 1 -maxdepth 1 -type d 2>/dev/null | while read line; do basename "$line"; done)" -- "$word"))

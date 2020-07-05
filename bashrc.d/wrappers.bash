@@ -55,5 +55,7 @@ function silence {
     "$@" >/dev/null 2>&1
 }
 
+alias gt=gnome-terminal-preset
+
 alias dc=docker-compose
 alias ku=kubectl

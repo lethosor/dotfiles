@@ -16,6 +16,7 @@
 	abort-merge = merge --abort
 	acommit = commit --amend --no-edit
 	ad = add
+	ap = add -p
 	cm = commit
 	co = checkout
 	cob = checkout -b
@@ -37,3 +38,4 @@
 	test-merge = merge --no-commit --no-ff
 	tm = merge --no-commit --no-ff
 	uc = ucommit
+	unadd = restore --staged

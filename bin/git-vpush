@@ -50,7 +50,7 @@ while run:
         except (KeyboardInterrupt, EOFError, IndexError) as _:
             run = False
             break
-        if response == 'n':
+        if response in ('n', 'q'):
             run = False
             break
         elif response in ('v', 'c', 'a'):

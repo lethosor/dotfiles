@@ -57,5 +57,10 @@ function silence {
 
 alias gt=gnome-terminal-preset
 
+if cmd_exists systemctl; then
+    alias sc=systemctl
+    cmd_exists __load_completion && __load_completion systemctl && complete -F _systemctl sc
+fi
+
 alias dc=docker-compose
 alias ku=kubectl

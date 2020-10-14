@@ -3,8 +3,10 @@
 
 b1="$1"
 b2="${2:-HEAD}"
+set -e
 r1="$(git rev-parse "$b1")"
 r2="$(git rev-parse "$b2")"
+set +e
 
 git merge-base --is-ancestor "$r1" "$r2"; a1=$?
 git merge-base --is-ancestor "$r2" "$r1"; a2=$?

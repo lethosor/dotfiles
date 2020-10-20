@@ -1,0 +1,1 @@
+EARLYOOM_ARGS="-r 3600 --avoid '(^|/)(init|Xorg|ssh|gnome-shell)$' --prefer '(^|/)(cc1|cc1plus|gcc|g++|spotify)$'""

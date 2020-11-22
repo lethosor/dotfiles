@@ -10,11 +10,15 @@ _git_ancestor() {
 }
 
 _git_count_commits() {
-    test $cword = 2 && __gitcomp_nl "$(__git_remotes)"
+    _git_log "$@"
 }
 
 _git_fetch_pr() {
     test $cword = 2 && __gitcomp_nl "$(__git_remotes)"
+}
+
+_git_list_authors() {
+    _git_log "$@"
 }
 
 _git_prune_branches() {

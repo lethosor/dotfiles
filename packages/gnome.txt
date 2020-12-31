@@ -1,0 +1,3 @@
+dconf-editor
+gnome-tweaks
+gir1.2-clutter-1.0

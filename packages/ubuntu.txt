@@ -1,0 +1,5 @@
+autoconf
+build-essential
+libncurses-dev
+python-is-python3
+xclip

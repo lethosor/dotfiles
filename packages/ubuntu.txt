@@ -1,5 +1,8 @@
 autoconf
 build-essential
+libinput-tools
 libncurses-dev
 python-is-python3
+wmctrl
 xclip
+xdotool

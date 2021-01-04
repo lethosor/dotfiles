@@ -78,6 +78,8 @@
 		".hg",
 		"CVS"
 	],
+	"font_size": 10,
+	"line_padding_top": 0,
 	"rulers":
 	[
 		80

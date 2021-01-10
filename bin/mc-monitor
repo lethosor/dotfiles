@@ -4,6 +4,7 @@ import argparse
 import sys
 import threading
 import time
+from urllib.parse import urlparse
 
 import gi
 gi.require_version('Notify', '0.7')
@@ -28,7 +29,11 @@ def main(args):
     parser.add_argument('server')
     args = parser.parse_args(args)
 
-    server = MinecraftServer(args.server)
+    parsed_address = urlparse('minecraft://' + args.server)
+    server_kwargs = {}
+    if parsed_address.port is not None:
+        server_kwargs['port'] = int(parsed_address.port)
+    server = MinecraftServer(parsed_address.hostname, **server_kwargs)
     server.ping()
 
     Notify.init(sys.argv[0])

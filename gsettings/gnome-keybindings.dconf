@@ -4,5 +4,10 @@ switch-applications=['<Super>Tab', '<Alt>Tab']
 switch-windows=@as []
 switch-windows-backward=@as []
 
+[org/gnome/settings-daemon/plugins/media-keys]
+terminal=['<Super>t']
+window-screenshot=['<Super>Print']
+window-screenshot-clip=['<Primary><Super>Print']
+
 [org/gnome/shell/keybindings]
-toggle-message-tray=@as []
+toggle-message-tray=['<Super>b']

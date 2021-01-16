@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
+import socket
 import sys
 import threading
 import time
@@ -22,6 +24,7 @@ def update_notification(players, notification):
     else:
         body = 'No players online'
     notification.update(notification.props.summary, body, notification.props.icon_name)
+    print('%s %s' % (time.strftime('%c'), body))
     notification.show()
 
 def main(args):
@@ -36,17 +39,20 @@ def main(args):
     server = MinecraftServer(parsed_address.hostname, **server_kwargs)
     server.ping()
 
-    Notify.init(sys.argv[0])
+    Notify.init(os.path.basename(sys.argv[0]))
     notification = Notify.Notification.new('Minecraft status: %s' % args.server, '', 'minecraft-launcher')
     loop = GLib.MainLoop()  # todo: use to handle notification closure: https://stackoverflow.com/a/32839454
     prev_players = None
 
     try:
         while True:
-            players = get_players(server)
-            if players != prev_players:
-                update_notification(players, notification)
-                prev_players = players
+            try:
+                players = get_players(server)
+                if players != prev_players:
+                    update_notification(players, notification)
+                    prev_players = players
+            except socket.error as e:
+                print('%s %s' % (time.strftime('%c '), e))
             time.sleep(60)
     except (KeyboardInterrupt, SystemExit):
         pass

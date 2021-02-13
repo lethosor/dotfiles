@@ -1,1 +1,11 @@
-ps -Ao rss,command | grep "$@" |  awk '{a+=$1}END{print a/1024 " MB"}'
+#!/bin/bash
+# obtain sum of memory usage of matching processes
+# same options as `pgrep`
+
+pids="$(pgrep "$@")"
+if [ -z "$pids" ]; then
+    echo "pgrep: no such process" >&2
+    exit 1
+fi
+
+ps -o rss -p $(pgrep "$@") 2>/dev/null | awk '{a+=$1}END{print a/1024 " MB"}'

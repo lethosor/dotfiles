@@ -84,6 +84,9 @@ cmd_exists __start_kubectl && complete -o default -F __start_kubectl ku
 
 # aliases/wrappers, bash-completion (need to load)
 if cmd_exists __load_completion; then
+    __load_completion pgrep
+    cmd_exists _pgrep && complete -F _pgrep memu
+
     if cmd_exists ninja; then
         __load_completion ninja
         cmd_exists _ninja_target && complete -F _ninja_target nninja

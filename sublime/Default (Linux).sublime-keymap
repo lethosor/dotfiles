@@ -2,6 +2,7 @@
     { "keys": ["ctrl+tab"], "command": "next_view" },
     { "keys": ["ctrl+shift+tab"], "command": "prev_view" },
     { "keys": ["alt+q"], "command": "wrap_lines_plus", "args": {"width": 80}},
-    { "keys": ["pageup"], "command": "" },
-    { "keys": ["pagedown"], "command": "" },
+    { "keys": ["ctrl+alt+g"], "command": "lsp_symbol_definition", "context": [{"key": "setting.lsp_active"}]},
+    { "keys": ["ctrl+alt+h"], "command": "lsp_symbol_declaration", "context": [{"key": "setting.lsp_active"}]},
+    { "keys": ["ctrl+alt+a"], "command": "alignment" },
 ]

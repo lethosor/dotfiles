@@ -6,6 +6,7 @@
 ignore/*
 ignore
 .ignore
+.cache/
 
 *.sublime-project
 *.sublime-workspace

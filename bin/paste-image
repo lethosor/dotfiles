@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [[ -z "$1" ]]; then
+    echo "usage: $0 FILENAME" >&2
+    exit 2
+fi
+
+if type xclip >/dev/null 2>&1; then
+    xclip -selection clipboard -target image/png -o > "$1"
+else
+    echo "$0: unsupported platform" >&2
+    exit 1
+fi

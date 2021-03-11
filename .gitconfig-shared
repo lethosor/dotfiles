@@ -39,3 +39,5 @@
 	tm = merge --no-commit --no-ff
 	uc = ucommit
 	unadd = restore --staged
+[init]
+	defaultBranch = master

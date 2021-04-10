@@ -1,0 +1,5 @@
+#!/bin/bash
+
+acl="${1:-192.168.0.0/24}"
+
+pacmd load-module module-native-protocol-tcp auth-ip-acl="${acl}"

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+dest="$1"
+if [ -z "${dest}" ]; then
+    echo "usage: $0 DESTINATION"
+    exit 2
+fi
+
+pacmd load-module module-tunnel-sink-new server="${dest}"

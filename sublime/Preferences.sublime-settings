@@ -16,6 +16,9 @@
 		"*.zip",
 		"node_modules/**"
 	],
+	"caret_style": "smooth",
+	"caret_extra_top": 0,
+	"caret_extra_bottom": 2,
 	"color_scheme": "Packages/User/Monokai Light.sublime-color-scheme",
 	"ensure_newline_at_eof_on_save": true,
 	"extra_file_exclude_patterns":
@@ -71,6 +74,7 @@
 		"*.db",
 		"*.sublime-workspace"
 	],
+	"file_tab_style": "angled",
 	"folder_exclude_patterns":
 	[
 		".svn",

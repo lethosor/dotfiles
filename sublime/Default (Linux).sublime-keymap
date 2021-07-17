@@ -5,4 +5,5 @@
     { "keys": ["ctrl+alt+g"], "command": "lsp_symbol_definition", "context": [{"key": "setting.lsp_active"}]},
     { "keys": ["ctrl+alt+h"], "command": "lsp_symbol_declaration", "context": [{"key": "setting.lsp_active"}]},
     { "keys": ["ctrl+alt+a"], "command": "alignment" },
+    { "keys": ["ctrl+alt+f"], "command": "goto_definition" },
 ]

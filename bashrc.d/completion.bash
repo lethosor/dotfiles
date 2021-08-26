@@ -79,11 +79,13 @@ for cmd in kubectl minikube argocd; do
 done
 
 # aliases/wrappers, third-party completion (already loaded)
-cmd_exists _docker_compose && complete -F _docker_compose dc
 cmd_exists __start_kubectl && complete -o default -F __start_kubectl ku
 
 # aliases/wrappers, bash-completion (need to load)
 if cmd_exists __load_completion; then
+    __load_completion docker-compose
+    cmd_exists _docker_compose && complete -F _docker_compose dc
+
     __load_completion pgrep
     cmd_exists _pgrep && complete -F _pgrep memu
 

@@ -72,7 +72,7 @@ if ! complete -p workon >/dev/null 2>&1; then
     complete -F _workon_fallback workon
 fi
 
-for cmd in kubectl minikube argocd; do
+for cmd in kubectl minikube argocd helm; do
     if cmd_exists "$cmd"; then
         . <("$cmd" completion bash 2>/dev/null)
     fi

@@ -6,7 +6,7 @@ TMPFILE="$(mktemp)"
 SNAPD_LOG_FILE="${SNAPD_LOG_FILE:-}"
 trap "rm ${TMPFILE}" EXIT
 
-if snap changes --abs-time > "${TMPFILE}" && grep -q '^ID' "${TMPFILE}"; then
+if snap changes --abs-time > "${TMPFILE}" && grep -q . "${TMPFILE}"; then
     cat "${TMPFILE}"
     if [[ -n "${SNAPD_LOG_FILE}" ]]; then
         date >> "${SNAPD_LOG_FILE}"

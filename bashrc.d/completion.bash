@@ -81,6 +81,8 @@ done
 # aliases/wrappers, third-party completion (already loaded)
 cmd_exists __start_kubectl && complete -o default -F __start_kubectl ku
 
+cmd_exists aws_completer && complete -C aws_completer aws
+
 # aliases/wrappers, bash-completion (need to load)
 if cmd_exists __load_completion; then
     __load_completion docker-compose

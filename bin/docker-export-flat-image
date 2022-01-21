@@ -5,7 +5,7 @@ if ! test -n "$1"; then
     exit 1
 fi
 
-container_id="$(docker container create "$1")"
+container_id="$(docker container create "$1" --entrypoint false)"
 trap "docker container rm $container_id >/dev/null" EXIT
 
 docker export "$container_id"

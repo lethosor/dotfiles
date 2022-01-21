@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if ! test -n "$1"; then
+    echo "usage: $0 IMAGE" >&2
+    exit 1
+fi
+
+container_id="$(docker container create "$1")"
+trap "docker container rm $container_id >/dev/null" EXIT
+
+docker export "$container_id"
+

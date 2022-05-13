@@ -63,4 +63,5 @@ if cmd_exists systemctl; then
 fi
 
 alias dc=docker-compose
+alias dc2='docker compose'
 alias ku=kubectl

@@ -6,7 +6,7 @@ get_timestamp() {
 }
 
 t1=$(get_timestamp)
-time ninja "$@"
+time --format '\nreal %E\nuser %U\nsys %S\ncpu %P' ninja "$@"
 code=$?
 t2=$(get_timestamp)
 [ "$code" = 0 ] && codemsg=succeeded || codemsg=failed

@@ -1,0 +1,38 @@
+#!/bin/bash
+
+set -e
+
+processed_args=()
+arg_clipboard=
+for arg in "$@"; do
+    echo "arg:$arg"
+    case "$arg" in
+        -c|--clipboard)
+            arg_clipboard=1
+            ;;
+        *)
+            processed_args+=("$arg")
+            ;;
+    esac
+done
+
+tmpfile=
+handle_exit() {
+    if [[ -n "$tmpfile" ]]; then
+        echo "rm $tmpfile"
+        rm "$tmpfile"
+    fi
+}
+trap handle_exit EXIT
+
+if [[ -n "$arg_clipboard" ]]; then
+    tmpfile="$(mktemp /tmp/XXXXXXXXXX.png)"
+    processed_args+=("--file" "$tmpfile")
+fi
+
+gnome-screenshot "${processed_args[@]}"
+
+if [[ -n "$tmpfile" ]]; then
+    echo "copying $tmpfile"
+    cat "$tmpfile" | xclip -in -selection clipboard -target image/png
+fi

@@ -1,0 +1,34 @@
+[org/gnome/shell/keybindings]
+screenshot=@as []
+screenshot-window=@as []
+show-screenshot-ui=['<Alt>Print']
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3]
+binding='Print'
+command='gnome-screenshot'
+name='screenshot screen save'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4]
+binding='<Primary>Print'
+command='bash -l -c "gnome-screenshot-wrapper --clipboard"'
+name='screenshot screen copy'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom5]
+binding='<Shift>Print'
+command='gnome-screenshot --area'
+name='screenshot area save'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom6]
+binding='<Primary><Shift>Print'
+command='bash -l -c "gnome-screenshot-wrapper --clipboard --area"'
+name='screenshot area copy'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom7]
+binding='<Super>Print'
+command='gnome-screenshot --window'
+name='screenshot window save'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom8]
+binding='<Primary><Super>Print'
+command='bash -l -c "gnome-screenshot-wrapper --window --clipboard"'
+name='screenshot window copy'

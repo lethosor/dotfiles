@@ -1,0 +1,22 @@
+#!/bin/bash
+set -e
+
+remote_ref="$(git rev-parse "${1:-"@{upstream}"}")"
+local_ref="$(git rev-parse "${2:-HEAD}")"
+if [[ "$remote_ref" = "$local_ref" ]]; then
+    echo "$(basename "$0"): nothing to compare"
+    exit 0
+fi
+
+merge_base="$(git merge-base "${remote_ref}" "${local_ref}")"
+
+# add one preceding commit if one of the ranges is empty
+if [[ "$remote_ref" = "$merge_base" ]] || [[ "$local_ref" = "$merge_base" ]]; then
+    if git rev-parse "${merge_base}~1" >/dev/null; then
+        merge_base="${merge_base}~1"
+    else
+        echo "?"
+    fi
+fi
+
+git range-diff "${merge_base}" "${remote_ref}" "${local_ref}"

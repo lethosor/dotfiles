@@ -3,6 +3,8 @@ set -e
 
 remote_ref="$(git rev-parse "${1:-"@{upstream}"}")"
 local_ref="$(git rev-parse "${2:-HEAD}")"
+shift
+shift
 if [[ "$remote_ref" = "$local_ref" ]]; then
     echo "$(basename "$0"): nothing to compare"
     exit 0
@@ -19,4 +21,4 @@ if [[ "$remote_ref" = "$merge_base" ]] || [[ "$local_ref" = "$merge_base" ]]; th
     fi
 fi
 
-git range-diff "${merge_base}" "${remote_ref}" "${local_ref}"
+git range-diff "${merge_base}" "${remote_ref}" "${local_ref}" "$@"

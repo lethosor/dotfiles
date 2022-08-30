@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+if [[ "$#" -eq 0 ]]; then
+    echo >&2 "usage: $0 FILE [FILE...]"
+    exit 1
+fi
+
+for file in "$@"; do
+    file_full_path="$(git ls-files --full-name "${file}")"
+    if [[ -n "${file_full_path}" ]] && git cat-file -e "HEAD:${file_full_path}"; then
+        git cat-file -p "HEAD:${file_full_path}" > "${file}"
+        echo "Restored: ${file_full_path}"
+    else
+        echo >&2 "WARN: Not found in index: ${file}"
+    fi
+done

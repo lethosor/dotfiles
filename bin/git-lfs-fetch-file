@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+
+if [[ "$#" -eq 0 ]]; then
+    echo >&2 "usage: $0 FILE [FILE...]"
+    exit 1
+fi
+
+for file in "$@"; do
+    file_full_path="$(git ls-files --full-name "${file}")"
+    if [[ -n "${file_full_path}" ]]; then
+        echo "Fetching: ${file_full_path}"
+        git lfs pull --include "${file_full_path}" --exclude ""
+        echo ""
+    else
+        echo "WARN: Not found in index: ${file}"
+    fi
+done

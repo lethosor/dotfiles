@@ -3,8 +3,7 @@ set -e
 
 remote_ref="$(git rev-parse "${1:-"@{upstream}"}")"
 local_ref="$(git rev-parse "${2:-HEAD}")"
-shift
-shift
+shift 2 || true
 if [[ "$remote_ref" = "$local_ref" ]]; then
     echo "$(basename "$0"): nothing to compare"
     exit 0

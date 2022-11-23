@@ -61,6 +61,12 @@
             "foreground": "var(purple)"
         },
         {
+            "name": "Number suffix",
+            "scope": "storage.type.numeric",
+            "foreground": "var(blue)",
+            "font_style": "italic"
+        },
+        {
             "name": "Built-in constant",
             "scope": "constant.language",
             "foreground": "var(purple)"
@@ -76,7 +82,7 @@
         },
         {
             "name": "Keyword",
-            "scope": "keyword - (source.c keyword.operator | source.c++ keyword.operator | source.objc keyword.operator | source.objc++ keyword.operator), keyword.operator.word",
+            "scope": "keyword - (source.c keyword.operator | source.c++ keyword.operator | source.objc keyword.operator | source.objc++ keyword.operator), keyword.operator.word, source.ruby keyword.declaration",
             "foreground": "var(red2)"
         },
         {
@@ -109,7 +115,7 @@
             "name": "Inherited class",
             "scope": "entity.other.inherited-class",
             "foreground": "var(green)",
-            "font_style": "italic underline"
+            "font_style": "italic"
         },
         {
             "name": "Function argument",
@@ -125,7 +131,7 @@
         },
         {
             "name": "Tag name",
-            "scope": "entity.name.tag",
+            "scope": "entity.name.tag | meta.mapping.key string.unquoted",
             "foreground": "var(red2)"
         },
         {
@@ -216,9 +222,29 @@
             "font_style": "italic"
         },
         {
+            "name": "markup underline",
+            "scope": "markup.underline",
+            "font_style": "underline"
+        },
+        {
             "name": "markup bold/italic",
             "scope": "markup.italic markup.bold | markup.bold markup.italic",
             "font_style": "bold italic"
+        },
+        {
+            "name": "markup bold/underline",
+            "scope": "markup.underline markup.bold | markup.bold markup.underline",
+            "font_style": "bold underline"
+        },
+        {
+            "name": "markup italic/underline",
+            "scope": "markup.underline markup.italic | markup.italic markup.underline",
+            "font_style": "italic underline"
+        },
+        {
+            "name": "markup bold/italic/underline",
+            "scope": "markup.bold markup.italic markup.underline | markup.bold markup.underline markup.italic | markup.italic markup.bold markup.underline | markup.italic markup.underline markup.bold | markup.underline markup.bold markup.italic | markup.underline markup.italic markup.bold",
+            "font_style": "bold italic underline"
         },
         {
             "name": "markup hr",

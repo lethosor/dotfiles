@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# adapted from https://stackoverflow.com/a/42544963
+
+numfmt_wrapper() {
+    args="--field=2 --to=iec-i --suffix=B --padding=7 --round=nearest"
+    if type gnumfmt &>/dev/null; then
+        gnumfmt $args
+    elif type numfmt &>/dev/null; then
+        numfmt $args
+    else
+        cat
+    fi
+}
+
+git rev-list --objects --all |
+  git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' |
+  sed -n 's/^blob //p' |
+  sort --numeric-sort --key=2 |
+  cut -c 1-12,41- |
+  numfmt_wrapper

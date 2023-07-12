@@ -87,6 +87,7 @@ cmd_exists aws_completer && complete -C aws_completer aws
 if cmd_exists __load_completion; then
     __load_completion docker-compose
     cmd_exists _docker_compose && complete -F _docker_compose dc
+    cmd_exists _docker_compose && complete -F _docker_compose dc2
 
     __load_completion pgrep
     cmd_exists _pgrep && complete -F _pgrep memu

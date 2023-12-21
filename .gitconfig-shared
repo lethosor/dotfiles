@@ -30,6 +30,7 @@
 	logf = log --pretty=fuller
 	logh = log --pretty=\"%Cgreen%h%Creset: %s\"
 	pl = pull
+	plf = pull --ff-only
 	ps = push
 	pul = pull
 	rgrep = grep --recurse-submodules

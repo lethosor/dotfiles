@@ -1,0 +1,26 @@
+#!/bin/bash
+
+cur="$(gsettings get org.gnome.desktop.notifications show-banners)"
+
+set_show_banners() {
+    gsettings set org.gnome.desktop.notifications show-banners "$1"
+}
+
+case "$1" in
+    on|true|1)
+        set_show_banners false
+        ;;
+    off|false|0)
+        set_show_banners true
+        ;;
+    toggle)
+        if [[ "$cur" = true ]]; then
+            set_show_banners false
+        else
+            set_show_banners true
+        fi
+        ;;
+    *)
+        echo "invalid argument: $1" >&2
+        ;;
+esac

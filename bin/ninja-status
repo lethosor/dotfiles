@@ -1,7 +1,9 @@
 #!/bin/sh
-ninjas="$(pgrep ninja)"
-for ninja_pid in $ninjas; do
-    for pid in $(pgrep -P "$ninja_pid"); do
-        echo "$ninja_pid $pid $(ps -o command= $pid)"
-    done
-done
+
+ninjas="$(pgrep -d, ninja)"
+if test -n "$ninjas"; then
+    children="$(pgrep -d, -P "$ninjas")"
+    if test -n "$children"; then
+        ps -o ppid,pid,command -p "$children" | cat
+    fi
+fi

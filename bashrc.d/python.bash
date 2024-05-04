@@ -15,5 +15,6 @@ if cmd_exists pyenv; then
 fi
 
 if cmd_exists virtualenvwrapper_lazy.sh; then
-    . "$(which virtualenvwrapper_lazy.sh)"
+    # in tmux, using the pyenv shim attempts to exec "-bash" or "bash", which causes the shell to exit immediately or hang respectively
+    . "$(which -a virtualenvwrapper_lazy.sh | grep -v /pyenv/shims/ | head -n1)"
 fi

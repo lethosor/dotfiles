@@ -8,7 +8,7 @@ def write(*args):
 def tput(*args):
     args = tuple(map(str, args))
     if args not in tput_cache:
-        tput_cache[args] = subprocess.check_output(['tput'] + list(args))
+        tput_cache[args] = subprocess.check_output(['tput'] + list(args)).decode()
     sys.stdout.write(tput_cache[args])
     sys.stdout.flush()
 def color(c):

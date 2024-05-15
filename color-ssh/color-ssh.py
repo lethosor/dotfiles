@@ -147,7 +147,7 @@ if len(sys.argv) >= 2:
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('host')
     parser.add_argument('test_host', nargs='?')
-    for arg_opt in 'bcDEeFIiJLlmOopQRSWw':
+    for arg_opt in 'BbcDEeFIiJLlmOopQRSWw':
         parser.add_argument('-' + arg_opt)
     for no_arg_opt in '46AaCfGgKkMNnqsTtVvXxYy':
         parser.add_argument('-' + no_arg_opt, action='store_true')

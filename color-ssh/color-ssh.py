@@ -32,6 +32,26 @@ def rgb2applescript(rgb):
         raise ValueError('Invalid RGB color')
     return '{%i, %i, %i, 0}' % tuple([max(0, min(255, x)) * 256 for x in rgb])
 
+def closest_256color(rgb):
+    # tmux's algorithm to find the closest 256-color isn't good enough, so roll our own
+    POINTS = (0, 95, 135, 175, 215, 255)
+    if all(c in (0, 255) for c in rgb) or all(c in (0, 128) for c in rgb) or all(c in POINTS for c in rgb):
+        return rgb
+    if all(c == rgb[0] for c in rgb):
+        # assume greyscale gets close enough
+        return rgb
+
+    cmax = max(rgb)
+    cmin = min(rgb)
+    if cmin != cmax and any(c not in (cmin, cmax) for c in rgb):
+        # 3 different components
+        omax = min([255] + [p for p in POINTS if p > cmax])
+        omed = max([0] + [p for p in POINTS if p < omax])
+        omin = max([0] + [p for p in POINTS if p < omed])
+        return tuple(omax if c == cmax else omin if c == cmin else omed for c in rgb)
+
+    return rgb
+
 def clean_hostname(host):
     # strip user from host
     return host.split('@')[-1]
@@ -98,6 +118,10 @@ class Terminal:
         sys.stdout.write('\033]Ph%s\033\\' % rgb2hex(rgb))
         sys.stdout.flush()
 
+    def color_tmux(self, rgb):
+        hex_color = rgb2hex(closest_256color(rgb))
+        subprocess.call(['tmux', 'select-pane', '-t', os.environ.get('TMUX_PANE', ''), '-P', 'bg=#' + hex_color])
+
 if 'COLOR_SSH_TERM' in os.environ:
     terminal = Terminal(os.environ['COLOR_SSH_TERM'])
 elif 'SSH_TTY' in os.environ or 'SSH_CLIENT' in os.environ:
@@ -110,6 +134,8 @@ elif os.environ.get('TERM_PROGRAM', '').lower().startswith('iterm'):
     terminal = Terminal('iterm')
 elif os.environ.get('TERM', '').startswith('xterm'):
     terminal = Terminal('xterm')
+elif os.environ.get('TMUX_PANE') and os.environ.get('TERM') == 'screen':
+    terminal = Terminal('tmux')
 else:
     terminal = Terminal(os.environ.get('TERM', 'dumb'))
 
@@ -145,6 +171,8 @@ if len(sys.argv) >= 2:
     host_config = apply_ssh_config(ssh_config, host)
     if '#color' in host_config:
         terminal.color(hex2rgb_check(host_config['#color']))
+        if in_test:
+            print('Color:', host_config['#color'])
 
 def run_script(p):
     p = os.path.expanduser(p)

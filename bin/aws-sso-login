@@ -1,0 +1,5 @@
+#!/bin/bash
+
+aws --profile="${AWS_PROFILE:-default}" "$@" sso login | tee >(
+    grep --line-buffered -P '^[A-Z]{4}\-[A-Z]{4}$' | xargs -I{} notify-send "Code: {}"
+)

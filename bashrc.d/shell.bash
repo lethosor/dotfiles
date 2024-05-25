@@ -27,7 +27,8 @@ export GREP_COLORS='mt=1;31' # GNU grep 3.8+
 
 export CDPATH=
 
-if ps -p $(ps -p $$ -o ppid=) -o cmd 2>/dev/null | grep gnome-terminal >/dev/null; then
+if ps -p $(ps -p $$ -o ppid=) -o cmd 2>/dev/null | grep gnome-terminal >/dev/null || \
+    [[ "$TERM_PROGRAM" =~ WezTerm ]]; then
     PROMPT_COMMAND="reset-title \"\$(basename \"\$(pwd)\")\"; $PROMPT_COMMAND"
 fi
 

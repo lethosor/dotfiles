@@ -120,7 +120,7 @@ class Terminal:
 
     def color_tmux(self, rgb):
         hex_color = rgb2hex(closest_256color(rgb))
-        subprocess.call(['tmux', 'select-pane', '-t', os.environ.get('TMUX_PANE', ''), '-P', 'bg=#' + hex_color])
+        subprocess.call(['tmux', 'set-option', '-p', '-t', os.environ.get('TMUX_PANE', ''), 'window-active-style', 'bg=#' + hex_color])
 
 if 'COLOR_SSH_TERM' in os.environ:
     terminal = Terminal(os.environ['COLOR_SSH_TERM'])

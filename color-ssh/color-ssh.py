@@ -130,7 +130,11 @@ class Terminal:
         sys.stdout.flush()
 
     def _tmux_set_bg(self, color):
-        subprocess.call(['tmux', 'set-option', '-p', '-t', os.environ.get('TMUX_PANE', ''), 'window-active-style', 'bg=' + color])
+        pane = os.environ.get('TMUX_PANE')
+        if not pane:
+            sys.stderr.write('color-ssh: TMUX_PANE not set in tmux mode\n')
+            return
+        subprocess.call(['tmux', 'set-option', '-p', '-t', pane, 'window-active-style', 'bg=' + color])
 
     def color_tmux(self, rgb):
         hex_color = rgb2hex(closest_256color(rgb))

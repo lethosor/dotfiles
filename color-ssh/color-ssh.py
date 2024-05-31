@@ -95,8 +95,15 @@ class Terminal:
         else:
             sys.stderr.write('color-ssh: Unrecognized terminal: %s\n' % name)
 
+        self.reset = self.reset_default
+        if not NO_COLOR:
+            self.reset = getattr(self, 'reset_' + name, self.reset_default)
+
     def color_dumb(self, rgb):
         pass
+
+    def reset_default(self, default_rgb):
+        self.color(default_rgb)
 
     def color_ssh(self, rgb):
         if not hasattr(self, 'color_ssh_warned'):
@@ -105,6 +112,10 @@ class Terminal:
 
     def color_xterm(self, rgb):
         sys.stdout.write('\033]11;#%s\007' % rgb2hex(rgb))
+        sys.stdout.flush()
+
+    def reset_xterm(self, default_rgb):
+        sys.stdout.write('\033]111;\007')
         sys.stdout.flush()
 
     def color_apple(self, rgb):
@@ -118,9 +129,15 @@ class Terminal:
         sys.stdout.write('\033]Ph%s\033\\' % rgb2hex(rgb))
         sys.stdout.flush()
 
+    def _tmux_set_bg(self, color):
+        subprocess.call(['tmux', 'set-option', '-p', '-t', os.environ.get('TMUX_PANE', ''), 'window-active-style', 'bg=' + color])
+
     def color_tmux(self, rgb):
         hex_color = rgb2hex(closest_256color(rgb))
-        subprocess.call(['tmux', 'set-option', '-p', '-t', os.environ.get('TMUX_PANE', ''), 'window-active-style', 'bg=#' + hex_color])
+        self._tmux_set_bg('#' + hex_color)
+
+    def reset_tmux(self, default_rgb):
+        self._tmux_set_bg('terminal')
 
 if 'COLOR_SSH_TERM' in os.environ:
     terminal = Terminal(os.environ['COLOR_SSH_TERM'])
@@ -194,7 +211,7 @@ try:
 except:
     print('\n')
 finally:
-    terminal.color(hex2rgb_check(base_config.get('#color.base', '#888888')))
+    terminal.reset(default_rgb=hex2rgb_check(base_config.get('#color.base', '#888888')))
 
 run_script('~/.bash/color-ssh-post.sh')
 exit(exit_code)

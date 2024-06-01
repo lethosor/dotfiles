@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <!-- https://forum.sublimetext.com/t/toggle-comment-with-a-custom-sublime-syntax/18789/11 -->
+  <dict>
+    <key>name</key>
+    <string>Meson</string>
+    <key>scope</key>
+    <string>source.meson</string>
+    <key>settings</key>
+    <dict>
+      <key>shellVariables</key>
+      <array>
+        <dict>
+          <key>name</key>
+          <string>TM_COMMENT_START</string>
+          <key>value</key>
+          <string># </string>
+        </dict>
+      </array>
+    </dict>
+  </dict>
+</plist>

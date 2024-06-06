@@ -86,4 +86,7 @@ config.font = wezterm.font('DejaVu Sans Mono')
 config.font_size = 11
 config.freetype_load_target = 'Light'
 
+-- Mouse
+config.selection_word_boundary = ' \t\n{}[]()"\'`:'
+
 return config

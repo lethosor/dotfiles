@@ -65,3 +65,7 @@ fi
 alias dc=docker-compose
 alias dc2='docker compose'
 alias ku=kubectl
+
+if [[ "$TERM_PROGRAM" =~ WezTerm ]]; then
+    alias imgcat='wezterm imgcat'
+fi

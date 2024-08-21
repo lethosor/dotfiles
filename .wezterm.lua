@@ -82,9 +82,14 @@ config.window_frame.inactive_titlebar_bg = TAB_BG_INACTIVE
 config.window_frame.active_titlebar_bg = TAB_BG_INACTIVE
 
 -- Font
-config.font = wezterm.font('DejaVu Sans Mono')
+config.font = wezterm.font_with_fallback{
+  'DejaVu Sans Mono',
+  'Ubuntu Mono',
+  'Courier',
+}
 config.font_size = 11
 config.freetype_load_target = 'Light'
+config.warn_about_missing_glyphs = false
 
 -- Mouse
 config.selection_word_boundary = ' \t\n{}[]()"\'`:'

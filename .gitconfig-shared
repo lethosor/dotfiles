@@ -38,6 +38,7 @@
 	st = status -s
 	stat = status
 	test-merge = merge --no-commit --no-ff
+	tgrep = !git grep  # shell commands run at top level
 	tm = merge --no-commit --no-ff
 	uc = ucommit
 	unadd = restore --staged

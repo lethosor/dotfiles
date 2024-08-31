@@ -94,4 +94,39 @@ config.warn_about_missing_glyphs = false
 -- Mouse
 config.selection_word_boundary = ' \t\n{}[]()"\'`:'
 
+-- Keyboard
+config.keys = config.keys or {}
+
+
+-- Plugins
+local resurrect = wezterm.plugin.require("https://github.com/MLFlexer/resurrect.wezterm")
+resurrect.periodic_save(300)
+table.insert(config.keys, {
+  key = "s",
+  mods = "ALT",
+  action = wezterm.action.Multiple({
+    wezterm.action_callback(function(win, pane)
+      resurrect.save_state(resurrect.workspace_state.get_workspace_state())
+    end),
+  }),
+})
+table.insert(config.keys, {
+  key = "l",
+  mods = "ALT",
+  action = wezterm.action.Multiple({
+    wezterm.action_callback(function(win, pane)
+      resurrect.fuzzy_load(win, pane, function(id, label)
+        id = string.match(id, "([^/]+)$")
+        id = string.match(id, "(.+)%..+$")
+        local state = resurrect.load_state(id, "workspace")
+        resurrect.workspace_state.restore_workspace(state, {
+          relative = true,
+          restore_text = true,
+          on_pane_restore = resurrect.tab_state.default_on_pane_restore,
+        })
+      end)
+    end),
+  }),
+})
+
 return config

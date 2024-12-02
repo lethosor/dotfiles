@@ -1,13 +1,26 @@
 All Autocomplete
+Babel
 Chmod
+Clang Format
+CMake
 Dockerfile Syntax Highlighting
+DotENV
+Fmt
 Git
 Gitignored File Excluder
 Jinja2
+LSP-clangd
+LSP-gopls
+LSP-rust-analyzer
+LSP
+MoveTab
 nginx
 Package Control
 Project Specific Syntax Settings
-SideBarEnhancements
+Rust Enhanced
+SideBarTools
 SublimeCodeIntel
+Terraform
+TypeScript Syntax
 Vue Syntax Highlight
 Wrap Plus

@@ -1,23 +1,22 @@
 #!/bin/bash
 set -e
 
-remote_ref="$(git rev-parse "${1:-"@{upstream}"}")"
-local_ref="$(git rev-parse "${2:-HEAD}")"
-shift 2 || true
+guess_default_remote() {
+    ((git remote show | grep origin) 2>/dev/null || git remote show) | head -n1
+}
+
+get_default_branch_for_remote() {
+    # git remote show "$1" | sed -n '/HEAD branch:/s/.*: //p'
+    echo "HEAD"
+}
+
+default_remote="$(guess_default_remote)"
+base_ref="$(git rev-parse "${1:-${default_remote}/$(get_default_branch_for_remote "$default_remote")}")"
+remote_ref="$(git rev-parse "${2:-"@{upstream}"}")"
+local_ref="$(git rev-parse "${3:-HEAD}")"
 if [[ "$remote_ref" = "$local_ref" ]]; then
     echo "$(basename "$0"): nothing to compare"
     exit 0
 fi
 
-merge_base="$(git merge-base "${remote_ref}" "${local_ref}")"
-
-# add one preceding commit if one of the ranges is empty
-if [[ "$remote_ref" = "$merge_base" ]] || [[ "$local_ref" = "$merge_base" ]]; then
-    if git rev-parse "${merge_base}~1" >/dev/null; then
-        merge_base="${merge_base}~1"
-    else
-        echo "?"
-    fi
-fi
-
-git range-diff "${merge_base}" "${remote_ref}" "${local_ref}" "$@"
+git range-diff "${base_ref}" "${remote_ref}" "${local_ref}" "$@"

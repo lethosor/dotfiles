@@ -27,6 +27,10 @@ _git_prune_branches() {
     esac
 }
 
+_git_range_diff_remote() {
+    _git_diff "$@"
+}
+
 _git_rprune() {
     test $cword = 2 && __gitcomp_nl "$(__git_remotes)"
 }

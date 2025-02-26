@@ -1,17 +1,3 @@
-[core]
-	excludesfile = ~/.gitignore
-	pager2 = less
-	editor = ~/dotfiles/bin/cli-editor
-[color]
-	ui = true
-[pull]
-	ff = true
-	rebase = false
-[push]
-	default = simple
-	recurseSubmodules = check
-[merge]
-	ff = false
 [alias]
 	abort-merge = merge --abort
 	acommit = commit --amend --no-edit
@@ -45,5 +31,19 @@
 	tm = merge --no-commit --no-ff
 	uc = ucommit
 	unadd = restore --staged
+[color]
+	ui = true
+[core]
+	excludesfile = ~/.gitignore
+	pager2 = less
+	editor = ~/dotfiles/bin/cli-editor
 [init]
 	defaultBranch = master
+[merge]
+	ff = false
+[pull]
+	ff = true
+	rebase = false
+[push]
+	default = simple
+	recurseSubmodules = check

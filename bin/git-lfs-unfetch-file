@@ -11,6 +11,7 @@ for file in "$@"; do
     file_full_path="$(git ls-files --full-name "${file}")"
     if [[ -n "${file_full_path}" ]] && git cat-file -e "HEAD:${file_full_path}"; then
         git cat-file -p "HEAD:${file_full_path}" > "${file}"
+        git restore "${file}"
         echo "Restored: ${file_full_path}"
     else
         echo >&2 "WARN: Not found in index: ${file}"

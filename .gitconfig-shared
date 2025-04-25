@@ -42,7 +42,7 @@
 [merge]
 	ff = false
 [pull]
-	ff = true
+	ff = only
 	rebase = false
 [push]
 	default = simple

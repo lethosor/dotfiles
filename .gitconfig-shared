@@ -47,3 +47,5 @@
 [push]
 	default = simple
 	recurseSubmodules = check
+[rebase]
+	autostash = true

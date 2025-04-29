@@ -40,6 +40,10 @@ _git_vpush() {
     _git_push "$@"
 }
 
+_git_when_merged() {
+    __git_complete_refs $track_opt
+}
+
 # disable unzip/tar completion to allow files with unconventional extensions
 # disable python completion because it breaks filename completion in script args
 complete -r tar unzip python python2 python3 pypy pypy3 2>/dev/null

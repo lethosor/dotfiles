@@ -1,7 +1,10 @@
 if [ -n "$HOMEBREW_PREFIX" ]; then
     export GOROOT="$HOMEBREW_PREFIX/opt/go/libexec"
+elif [ -d "$HOME/.local/go" ]; then
+    export GOROOT="$HOME/.local/go"
 fi
 
-if [ -n "$GOPATH" ]; then
-    export GOBIN="$GOPATH/bin"
-fi
+export GOPATH=~/go
+export GOBIN="$GOPATH/bin"
+
+add_path PATH end "$GOROOT/bin" "$GOPATH/bin"

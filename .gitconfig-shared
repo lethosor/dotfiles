@@ -45,6 +45,7 @@
 	ff = only
 	rebase = false
 [push]
+	autoSetupRemote = true
 	default = simple
 	recurseSubmodules = check
 [rebase]

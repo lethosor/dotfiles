@@ -22,5 +22,5 @@ SideBarTools
 SublimeCodeIntel
 Terraform
 TypeScript Syntax
-Vue Syntax Highlight
+Vue
 Wrap Plus

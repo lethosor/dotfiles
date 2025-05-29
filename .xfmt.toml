@@ -1,5 +1,5 @@
 [[rule]]
-mode = "stdin"
+tags = ["js", "css"]
 include = ["*.js", "*.css", "*.vue"]
 command = ["prettier", "--stdin-filepath", "$file"]
 
@@ -7,3 +7,17 @@ command = ["prettier", "--stdin-filepath", "$file"]
 tags = ["python"]
 include = ["*.py"]
 command = ["ruff", "format", "--stdin-filename", "$file", "-"]
+
+[[rule]]
+tags = ["terraform"]
+include = ["*.tf"]
+command = ["terraform", "fmt", "-no-color", "-"]
+
+[[rule]]
+tags = ["go"]
+include = ["*.go"]
+command = ["gofmt"]
+
+[[rule]]
+noop = true
+include = ["*.sublime-settings"]

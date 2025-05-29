@@ -17,7 +17,7 @@ if not file_path.is_file():
 
 def find_configs(path):
     for path in [path] + list(path.parents):
-        for f in ('multifmt.toml', '.multifmt.toml'):
+        for f in ('xfmt.toml', '.xfmt.toml'):
             config_path = path / f
             if config_path.exists():
                 yield str(config_path)

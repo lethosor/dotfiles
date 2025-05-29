@@ -1,0 +1,4 @@
+[[rule]]
+mode = "stdin"
+include = ["*.js", "*.css", "*.vue"]
+command = ["prettier", "--stdin-filepath", "$file"]

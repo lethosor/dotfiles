@@ -2,3 +2,8 @@
 mode = "stdin"
 include = ["*.js", "*.css", "*.vue"]
 command = ["prettier", "--stdin-filepath", "$file"]
+
+[[rule]]
+tags = ["python"]
+include = ["*.py"]
+command = ["ruff", "format", "--stdin-filename", "$file", "-"]

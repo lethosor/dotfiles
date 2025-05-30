@@ -6,7 +6,7 @@ command = ["prettier", "--stdin-filepath", "$file"]
 [[rule]]
 tags = ["python"]
 include = ["*.py"]
-command = ["ruff", "format", "--stdin-filename", "$file", "-"]
+command = ["fmt-ruff-with-includes", "--stdin-filename", "$file", "-"]
 
 [[rule]]
 tags = ["terraform"]

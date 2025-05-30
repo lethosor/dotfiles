@@ -1,0 +1,31 @@
+{
+    "format_on_save": true,
+    "merge_type": "diff",
+    "rules": [
+        {
+            "selector": "source.c",
+            "cmd": ["xfmt", "$file", "--tag", "c"],
+        },
+        {
+            "selector": "source.c++",
+            "cmd": ["xfmt", "$file", "--tag", "c++"],
+        },
+        {
+            "selector": "source.go",
+            "cmd": ["xfmt", "$file", "--tag", "go"],
+        },
+        {
+            "selector": "source.json",
+            "cmd": ["xfmt", "$file", "--tag", "json"],
+        },
+        {
+            "selector": "source.python",
+            "cmd": ["xfmt", "$file", "--tag", "python"],
+        },
+        {
+            "selector": "source.terraform",
+            "cmd": ["xfmt", "$file", "--tag", "terraform"],
+        },
+    ],
+    "timeout": 5
+}

@@ -1,20 +1,20 @@
 [[rule]]
-tags = ["js", "css"]
+tags = ["js", "css", "source.css", "source.js", "text.html.vue", "text.html.svelte"]
 include = ["*.js", "*.css", "*.vue"]
 command = ["prettier", "--stdin-filepath", "$file"]
 
 [[rule]]
-tags = ["python"]
+tags = ["python", "source.python"]
 include = ["*.py"]
 command = ["fmt-ruff-with-includes", "--stdin-filename", "$file", "-"]
 
 [[rule]]
-tags = ["terraform"]
+tags = ["terraform", "source.terraform"]
 include = ["*.tf"]
 command = ["terraform", "fmt", "-no-color", "-"]
 
 [[rule]]
-tags = ["go"]
+tags = ["go", "source.go"]
 include = ["*.go"]
 command = ["gofmt"]
 

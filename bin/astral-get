@@ -1,0 +1,145 @@
+#!/usr/bin/env -S uv run --script
+
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["requests"]
+# ///
+
+import argparse
+import os
+import platform
+import subprocess
+import sys
+import tarfile
+import tempfile
+
+import requests
+
+parser = argparse.ArgumentParser()
+parser.add_argument("tool", help="tool name")
+parser.add_argument("version", nargs="?", default="latest", help="tool version")
+parser.add_argument(
+    "-b",
+    "--bin-dir",
+    default=os.path.expanduser("~/bin"),
+    help="directory to extract binaries to",
+)
+parser.add_argument("-y", "--yes", action="store_true", help="skip confirmation")
+parser.add_argument(
+    "--reinstall",
+    action="store_true",
+    help="reinstall if this version is already present",
+)
+parser.add_argument(
+    "--keep", action="store_true", help="don't delete temporary download folder"
+)
+parser.add_argument("--triplet", help="target triplet of build to install")
+args = parser.parse_args()
+
+
+def calculate_triplet():
+    uname = os.uname()
+    if uname.sysname == "Linux":
+        arch = None
+        if uname.machine == "x86_64":
+            if sys.maxsize > 2**32:
+                arch = "x86_64"
+            else:
+                arch = "i686"
+        elif uname.machine == "aarch64":
+            arch = "aarch64"
+        elif uname.machine.startswith("armv7"):
+            arch = "armv7"
+
+        libc = None
+        if platform.libc_ver()[0] == "glibc":
+            libc = "gnu"
+            if arch == "armv7":
+                libc = "gnueabihf"
+        else:
+            libc = "musl"
+
+        if arch and libc:
+            return f"{arch}-unknown-linux-{libc}"
+
+    elif uname.sysname == "Darwin":
+        return f"{uname.machine}-apple-darwin"
+
+    raise RuntimeError("Could not determine triplet from platform")
+
+
+triplet = args.triplet or calculate_triplet()
+tool = args.tool
+version = args.version
+
+current_version = None
+try:
+    current_version = (
+        subprocess.check_output([tool, "--version"]).decode().strip().split(" ")[1]
+    )
+except FileNotFoundError:
+    pass
+
+if version == "latest":
+    version = requests.get(
+        f"https://api.github.com/repos/astral-sh/{tool}/releases/latest"
+    ).json()["tag_name"]
+
+if version == current_version:
+    if args.reinstall:
+        print(f"Reinstalling {tool} {version}")
+    else:
+        exit(f"{tool} {version} is already installed. Pass --reinstall to reinstall.")
+elif current_version:
+    print(f"Replacing {tool} {current_version}")
+
+print(f"Downloading {tool} {version}...")
+with tempfile.TemporaryDirectory(
+    prefix=f"astral-{tool}-{version}-",
+    delete=not args.keep,
+) as d:
+    url = f"https://github.com/astral-sh/{tool}/releases/download/{version}/{tool}-{triplet}.tar.gz"
+    url_sha = url + ".sha256"
+    filename = url.split("/")[-1]
+    filename_sha = url_sha.split("/")[-1]
+    subprocess.check_call(
+        [
+            "wget",
+            "--continue",
+            "--quiet",
+            "--show-progress",
+            url_sha,
+            "--output-document",
+            os.path.join(d, filename_sha),
+        ]
+    )
+    subprocess.check_call(
+        [
+            "wget",
+            "--continue",
+            "--quiet",
+            "--show-progress",
+            url,
+            "--output-document",
+            os.path.join(d, filename),
+        ]
+    )
+    subprocess.check_call(["sha256sum", "-c", filename_sha], cwd=d)
+    subprocess.check_call(["tar", "tf", os.path.join(d, filename)])
+    if not args.yes:
+        if input(f"extract to {args.bin_dir}? [Y/n] ").strip().lower() == "n":
+            exit("aborted")
+    subprocess.check_call(
+        [
+            "tar",
+            "xvf",
+            os.path.join(d, filename),
+            "-C",
+            args.bin_dir,
+            "--strip-components",
+            "1",
+        ]
+    )
+
+print("new tool installed:")
+subprocess.run([tool, "--version"])

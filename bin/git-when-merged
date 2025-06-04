@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- mode: python; coding: utf-8 -*-
+# fmt: off
+# ruff: noqa
 # https://github.com/mhagger/git-when-merged/commit/2cbe909f485a9af96e33fb5d92426a9c10134e3e
 
 # Copyright (c) 2013 Michael Haggerty

@@ -2,6 +2,8 @@
 
 set -e
 type fzf >/dev/null
+git rev-parse HEAD >/dev/null
+git recent-branches >/dev/null
 branch="$(git recent-branches | fzf --ansi --height 10 --preview 'git log -1 {-1}' | sed -E 's/.+?: //')"
 test -n "$branch"
 git switch "$branch"

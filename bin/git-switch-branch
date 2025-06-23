@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+type fzf >/dev/null
+branch="$(git recent-branches | fzf --ansi --height 10 | sed -E 's/.+?: //')"
+test -n "$branch"
+git switch "$branch"

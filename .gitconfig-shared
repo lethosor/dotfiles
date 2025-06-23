@@ -24,6 +24,7 @@
 	recent-branches = !git reflog show --pretty=format:'%gs ~ %gd' --date=relative | grep 'checkout:' | grep -oE '[^ ]+ ~ .*' | awk -F~ '!seen[$1]++' | head -n 20 | awk -F' ~ HEAD@{' '{printf(\" \\033[33m%s: \\033[32m\\033[1m%s\\033[0m\\n\", substr($2, 1, length($2)-1), $1)}'
 	rgrep = grep --recurse-submodules
 	rprune = "!f() { if test -z \"$1\"; then echo 'usage: git rprune REMOTE'; exit 1; fi; git fetch \"$1\" && git remote prune \"$1\" && git prune-branches; }; f"
+	sb = switch-branch
 	st = status -s
 	stat = status
 	test-merge = merge --no-commit --no-ff

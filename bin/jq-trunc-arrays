@@ -1,0 +1,2 @@
+#!/bin/bash
+jq --argjson max "${1:-10}" '. | walk(if type == "array" and length > $max then .[0:$max]+["..."+(length-$max|tostring)+" more..."] else . end)' "$@"

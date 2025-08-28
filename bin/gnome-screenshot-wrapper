@@ -37,6 +37,6 @@ if [[ -n "$tmpfile" ]]; then
     cat "$tmpfile" | xclip -in -selection clipboard -target image/png
     if type notify-send &>/dev/null; then
         # sometimes large screenshots can take a few seconds, so notify when done
-        notify-send "Screenshot copied to clipboard" --icon camera-photo || true
+        notify-send "Screenshot copied to clipboard" --icon camera-photo --hint int:transient:1 || true
     fi
 fi

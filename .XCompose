@@ -1,0 +1,6 @@
+# https://askubuntu.com/a/47528
+# defaults in /usr/share/X11/locale/en_US.UTF-8/Compose
+# reload with `ibus restart`
+include "%L"   # import the default Compose file for your locale
+
+<Multi_key> <v> <minus> : "√"

@@ -3,6 +3,7 @@
 alias fail='tail -f'
 alias la='ls -A'
 alias ll='ls -alF'
+alias mtime='stat -c %Y'
 alias node="node --experimental-repl-await"
 alias ping='ping -c 1000'
 

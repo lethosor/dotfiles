@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+
+import argparse
+import subprocess
+from urllib.parse import urlparse
+
+
+def check_url(raw_url):
+    url = urlparse(raw_url)
+
+    host = url.hostname or url.path or raw_url
+    port = url.port or 443
+    p1 = subprocess.Popen(
+        [
+            "openssl",
+            "s_client",
+            "-servername",
+            host,
+            "-connect",
+            f"{host}:{port}",
+        ],
+        stdin=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+    )
+
+    p2 = subprocess.Popen(
+        ["openssl", "x509", "-noout", "-enddate"],
+        stdin=p1.stdout,
+        stdout=subprocess.PIPE,
+        text=True,
+    )
+
+    p1.stdout.close()
+    stdout, _ = p2.communicate()
+
+    print(host, stdout.strip())
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("urls", nargs="+", metavar="URL")
+    args = parser.parse_args()
+
+    for url in args.urls:
+        check_url(url)
+
+
+if __name__ == "__main__":
+    main()

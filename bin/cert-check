@@ -25,7 +25,7 @@ def check_url(raw_url):
     )
 
     p2 = subprocess.Popen(
-        ["openssl", "x509", "-noout", "-enddate"],
+        ["openssl", "x509", "-noout", "-startdate", "-enddate"],
         stdin=p1.stdout,
         stdout=subprocess.PIPE,
         text=True,
@@ -34,7 +34,7 @@ def check_url(raw_url):
     p1.stdout.close()
     stdout, _ = p2.communicate()
 
-    print(host, stdout.strip())
+    print(host, stdout.strip().replace("\n", " | "))
 
 
 def main():

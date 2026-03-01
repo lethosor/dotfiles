@@ -5,7 +5,7 @@ if [ -n "$SSH_CONNECTION" ]; then
     _host="\h:"
 fi
 export PS1="[\t] $_host\W\$ "
-PROMPT_COMMAND="__git_ps1 '\${VIRTUAL_ENV:+(\$(basename \$VIRTUAL_ENV)) }[\t] $_host\W' '\\\$ '; $PROMPT_COMMAND"
+PROMPT_COMMAND="__git_ps1 '\$([[ -z "\$HISTFILE" ]] && printf \"\[\e[1;31m\](NH)\[\e[0m\] \")\${VIRTUAL_ENV:+(\$(basename \$VIRTUAL_ENV)) }[\t] $_host\W' '\\\$ '; $PROMPT_COMMAND"
 unset _host
 
 GIT_PS1_SHOWCOLORHINTS=1
@@ -15,7 +15,7 @@ GIT_PS1_SHOWUNTRACKEDFILES=1
 
 HISTSIZE=10000
 HISTFILESIZE=10000
-PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
+PROMPT_COMMAND="[[ -n \"\$HISTFILE\" ]] && history -a; $PROMPT_COMMAND"
 
 export EDITOR="subl --wait --new-window"
 export OPENPY_EDITOR="subl"

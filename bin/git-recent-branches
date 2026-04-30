@@ -1,16 +1,55 @@
 #!/usr/bin/env python
 import argparse
+import functools
 import subprocess
 import sys
 import time
 from pathlib import Path
 
 
-def common_gitdir():
+@functools.cache
+def get_current_gitdir():
+    out = subprocess.check_output(["git", "rev-parse", "--git-dir"], text=True).strip()
+    return Path(out).resolve()
+
+
+@functools.cache
+def get_common_gitdir():
     out = subprocess.check_output(
         ["git", "rev-parse", "--git-common-dir"], text=True
     ).strip()
-    return Path(out)
+    return Path(out).resolve()
+
+
+def read_head_branch(head_file):
+    try:
+        content = head_file.read_text().strip()
+    except OSError:
+        return None
+    prefix = "ref: refs/heads/"
+    if content.startswith(prefix):
+        return content[len(prefix) :]
+    return None
+
+
+def read_branches_in_other_worktrees():
+    common_gitdir = get_common_gitdir()
+    current_gitdir = get_current_gitdir()
+    head_files = [common_gitdir / "HEAD"]
+    worktrees_dir = common_gitdir / "worktrees"
+    if worktrees_dir.is_dir():
+        for wt_dir in worktrees_dir.iterdir():
+            head_files.append(wt_dir / "HEAD")
+    branches = set()
+    for head in head_files:
+        if not head.is_file():
+            continue
+        if head.parent.resolve() == current_gitdir:
+            continue
+        branch = read_head_branch(head)
+        if branch:
+            branches.add(branch)
+    return branches
 
 
 def latest_reflog_timestamp(path):
@@ -30,7 +69,7 @@ def latest_reflog_timestamp(path):
 
 
 def collect_branches():
-    logs_dir = common_gitdir() / "logs" / "refs" / "heads"
+    logs_dir = get_common_gitdir() / "logs" / "refs" / "heads"
     if not logs_dir.is_dir():
         return {}
     latest = {}
@@ -46,7 +85,7 @@ def collect_branches():
 
 
 def head_reflog_paths():
-    gitdir = common_gitdir()
+    gitdir = get_common_gitdir()
     paths = []
     main_log = gitdir / "logs" / "HEAD"
     if main_log.is_file():
@@ -131,12 +170,17 @@ def main():
     entries = collect_branches()
     if args.all:
         entries.update(collect_non_branch_targets(set(entries)))
+    branches_elsewhere = read_branches_in_other_worktrees()
     sorted_entries = sorted(entries.items(), key=lambda kv: kv[1], reverse=True)
     if args.limit > 0:
         sorted_entries = sorted_entries[: args.limit]
     for branch, ts in sorted_entries:
+        if branch in branches_elsewhere:
+            name_style = "\033[31;3m"  # red + italic
+        else:
+            name_style = "\033[32;1m"  # green + bold
         sys.stdout.write(
-            f" \033[33m{describe_time_ago(now - ts)}: \033[32m\033[1m{branch}\033[0m\n"
+            f" \033[33m{describe_time_ago(now - ts)}: {name_style}{branch}\033[0m\n"
         )
 
 

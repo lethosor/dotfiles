@@ -4,6 +4,22 @@ set -e
 type fzf >/dev/null
 git rev-parse HEAD >/dev/null
 git recent-branches --limit=1 "$@" >/dev/null
-branch="$(git recent-branches --limit=-1 "$@" | fzf --ansi --height 10 --preview 'git log -1 {-1}' | sed -E 's/.+?: //')"
+
+preview() {
+  local b="$1"
+  local current other
+  current=$(git rev-parse --show-toplevel)
+  other=$(git for-each-ref --format='%(refname:short) %(worktreepath)' refs/heads |
+          awk -v b="$b" '$1 == b { print $2 }')
+  if [ -n "$other" ] && [ "$other" != "$current" ]; then
+    printf '\033[31mchecked out in another worktree: %s\033[0m\n\n' "$other"
+  fi
+  git log -1 "$b"
+}
+export -f preview
+
+branch="$(git recent-branches --limit=-1 "$@" |
+  SHELL=bash fzf --ansi --height 10 --preview 'preview {-1}' |
+  sed -E 's/.+?: //')"
 test -n "$branch"
 git switch "$branch"

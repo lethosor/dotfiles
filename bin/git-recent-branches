@@ -32,7 +32,7 @@ def latest_reflog_timestamp(path):
 def collect_branches():
     logs_dir = common_gitdir() / "logs" / "refs" / "heads"
     if not logs_dir.is_dir():
-        return []
+        return {}
     latest = {}
     for path in logs_dir.rglob("*"):
         if not path.is_file():
@@ -42,7 +42,54 @@ def collect_branches():
             continue
         branch = str(path.relative_to(logs_dir))
         latest[branch] = ts
-    return sorted(latest.items(), key=lambda kv: kv[1], reverse=True)
+    return latest
+
+
+def head_reflog_paths():
+    gitdir = common_gitdir()
+    paths = []
+    main_log = gitdir / "logs" / "HEAD"
+    if main_log.is_file():
+        paths.append(main_log)
+    worktrees_dir = gitdir / "worktrees"
+    if worktrees_dir.is_dir():
+        for wt_dir in worktrees_dir.iterdir():
+            log = wt_dir / "logs" / "HEAD"
+            if log.is_file():
+                paths.append(log)
+    return paths
+
+
+def parse_checkout_line(line):
+    # reflog line: <oldsha> <newsha> <name> <email> <ts> <tz>\t<message>
+    header, _, message = line.partition("\t")
+    if not message.startswith("checkout: moving from "):
+        return None
+    _, _, target = message.rstrip("\n").rpartition(" to ")
+    if not target:
+        return None
+    parts = header.split()
+    try:
+        ts = int(parts[-2])
+    except (ValueError, IndexError):
+        return None
+    return target, ts
+
+
+def collect_non_branch_targets(branch_names):
+    latest = {}
+    for path in head_reflog_paths():
+        with path.open() as f:
+            for line in f:
+                parsed = parse_checkout_line(line)
+                if parsed is None:
+                    continue
+                target, ts = parsed
+                if target in branch_names:
+                    continue
+                if ts > latest.get(target, -1):
+                    latest[target] = ts
+    return latest
 
 
 def describe_time_ago(diff):
@@ -72,13 +119,22 @@ def main():
         default=20,
         help="number of branches to show (default: 20; <=0 shows all branches with a reflog)",
     )
+    parser.add_argument(
+        "-a",
+        "--all",
+        action="store_true",
+        help="also include non-branch checkout targets (SHAs, tags, deleted branches) from worktree HEAD reflogs",
+    )
     args = parser.parse_args()
 
     now = int(time.time())
-    branches = collect_branches()
+    entries = collect_branches()
+    if args.all:
+        entries.update(collect_non_branch_targets(set(entries)))
+    sorted_entries = sorted(entries.items(), key=lambda kv: kv[1], reverse=True)
     if args.limit > 0:
-        branches = branches[: args.limit]
-    for branch, ts in branches:
+        sorted_entries = sorted_entries[: args.limit]
+    for branch, ts in sorted_entries:
         sys.stdout.write(
             f" \033[33m{describe_time_ago(now - ts)}: \033[32m\033[1m{branch}\033[0m\n"
         )

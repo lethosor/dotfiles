@@ -1,55 +1,47 @@
 #!/usr/bin/env python
 import argparse
-import re
 import subprocess
 import sys
 import time
-
-CHECKOUT_RE = re.compile(
-    r"^HEAD@\{(?P<timestamp>\d+)\} checkout: moving from \S+ to (?P<branch>\S+)$"
-)
+from pathlib import Path
 
 
-def worktree_paths():
-    out = subprocess.check_output(["git", "worktree", "list", "--porcelain"], text=True)
-    search_prefix = "worktree "
-    return [
-        line[len(search_prefix) :]
-        for line in out.splitlines()
-        if line.startswith(search_prefix)
-    ]
+def common_gitdir():
+    out = subprocess.check_output(
+        ["git", "rev-parse", "--git-common-dir"], text=True
+    ).strip()
+    return Path(out)
 
 
-def reflog_lines(worktree):
-    result = subprocess.run(
-        [
-            "git",
-            "-C",
-            worktree,
-            "reflog",
-            "show",
-            "--date=unix",
-            "--pretty=format:%gd %gs",
-        ],
-        capture_output=True,
-        text=True,
-    )
-    if result.returncode != 0:
-        return []
-    return result.stdout.splitlines()
+def latest_reflog_timestamp(path):
+    last = ""
+    with path.open() as f:
+        for line in f:
+            if line.strip():
+                last = line
+    if not last:
+        return None
+    header = last.split("\t", 1)[0]
+    parts = header.split()
+    try:
+        return int(parts[-2])
+    except (ValueError, IndexError):
+        return None
 
 
 def collect_branches():
+    logs_dir = common_gitdir() / "logs" / "refs" / "heads"
+    if not logs_dir.is_dir():
+        return []
     latest = {}
-    for wt in worktree_paths():
-        for line in reflog_lines(wt):
-            m = CHECKOUT_RE.match(line)
-            if not m:
-                continue
-            ts = int(m.group("timestamp"))
-            branch = m.group("branch")
-            if ts > latest.get(branch, -1):
-                latest[branch] = ts
+    for path in logs_dir.rglob("*"):
+        if not path.is_file():
+            continue
+        ts = latest_reflog_timestamp(path)
+        if ts is None:
+            continue
+        branch = str(path.relative_to(logs_dir))
+        latest[branch] = ts
     return sorted(latest.items(), key=lambda kv: kv[1], reverse=True)
 
 
@@ -72,13 +64,13 @@ def describe_time_ago(diff):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="List recently checked-out branches")
+    parser = argparse.ArgumentParser(description="List recently active branches")
     parser.add_argument(
         "-n",
         "--limit",
         type=int,
         default=20,
-        help="number of branches to show (default: 20; <=0 shows all branches still present in the reflog)",
+        help="number of branches to show (default: 20; <=0 shows all branches with a reflog)",
     )
     args = parser.parse_args()
 

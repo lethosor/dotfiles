@@ -22,4 +22,8 @@ branch="$(git recent-branches --limit=-1 "$@" |
   SHELL=bash fzf --ansi --height 10 --preview 'preview {-1}' |
   sed -E 's/.+?: //')"
 test -n "$branch"
-git switch "$branch"
+if git show-ref --verify --quiet "refs/heads/$branch"; then
+  git switch "$branch"
+else
+  git switch --detach "$branch"
+fi

@@ -1,5 +1,19 @@
 #!/bin/bash
 
+limit=20
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -n|--limit) limit="$2"; shift 2 ;;
+    -n*) limit="${1#-n}"; shift ;;
+    --limit=*) limit="${1#--limit=}"; shift ;;
+    *) echo "unknown argument: $1" >&2; exit 1 ;;
+  esac
+done
+
+if [[ limit -lt 0 ]]; then
+  limit=-0
+fi
+
 git worktree list --porcelain | awk '/^worktree / {print substr($0, 10)}' | \
   while IFS= read -r wt; do
     git -C "$wt" reflog show --date=unix --pretty=format:'%gd %gs' 2>/dev/null
@@ -15,7 +29,7 @@ git worktree list --porcelain | awk '/^worktree / {print substr($0, 10)}' | \
     END { for (b in seen) printf "%d %s\n", seen[b], b }
   ' | \
   sort -rn -k1,1 | \
-  head -n 20 | \
+  head -n "$limit" | \
   awk -v now="$(date +%s)" '
     function rel(diff,    n, unit) {
       if (diff < 60) { n = diff; unit = "second" }

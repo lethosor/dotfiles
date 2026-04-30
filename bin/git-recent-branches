@@ -1,8 +1,31 @@
 #!/bin/bash
 
-git reflog show --pretty=format:'%gs ~ %gd' --date=relative | \
-  grep 'checkout:' | \
-  grep -oE '[^ ]+ ~ .*' | \
-  awk -F~ '!seen[$1]++' | \
+git worktree list --porcelain | awk '/^worktree / {print substr($0, 10)}' | \
+  while IFS= read -r wt; do
+    git -C "$wt" reflog show --date=unix --pretty=format:'%gd %gs' 2>/dev/null
+    echo
+  done | \
+  awk '
+    /checkout: moving from .* to / {
+      if (!match($1, /\{[0-9]+\}/)) next
+      ts = substr($1, RSTART+1, RLENGTH-2) + 0
+      branch = $NF
+      if (!(branch in seen) || ts > seen[branch]) seen[branch] = ts
+    }
+    END { for (b in seen) printf "%d %s\n", seen[b], b }
+  ' | \
+  sort -rn -k1,1 | \
   head -n 20 | \
-  awk -F' ~ HEAD@{' '{printf(" \033[33m%s: \033[32m\033[1m%s\033[0m\n", substr($2, 1, length($2)-1), $1)}'
+  awk -v now="$(date +%s)" '
+    function rel(diff,    n, unit) {
+      if (diff < 60) { n = diff; unit = "second" }
+      else if (diff < 3600) { n = int(diff/60); unit = "minute" }
+      else if (diff < 86400) { n = int(diff/3600); unit = "hour" }
+      else if (diff < 86400*14) { n = int(diff/86400); unit = "day" }
+      else if (diff < 86400*70) { n = int(diff/(86400*7)); unit = "week" }
+      else if (diff < 86400*365) { n = int(diff/(86400*30)); unit = "month" }
+      else { n = int(diff/(86400*365)); unit = "year" }
+      return n " " unit (n==1?"":"s") " ago"
+    }
+    { printf(" \033[33m%s: \033[32m\033[1m%s\033[0m\n", rel(now - $1), $2) }
+  '

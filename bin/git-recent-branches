@@ -1,45 +1,96 @@
-#!/bin/bash
+#!/usr/bin/env python
+import argparse
+import re
+import subprocess
+import sys
+import time
 
-limit=20
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-    -n|--limit) limit="$2"; shift 2 ;;
-    -n*) limit="${1#-n}"; shift ;;
-    --limit=*) limit="${1#--limit=}"; shift ;;
-    *) echo "unknown argument: $1" >&2; exit 1 ;;
-  esac
-done
+CHECKOUT_RE = re.compile(
+    r"^HEAD@\{(?P<timestamp>\d+)\} checkout: moving from \S+ to (?P<branch>\S+)$"
+)
 
-if [[ limit -lt 0 ]]; then
-  limit=-0
-fi
 
-git worktree list --porcelain | awk '/^worktree / {print substr($0, 10)}' | \
-  while IFS= read -r wt; do
-    git -C "$wt" reflog show --date=unix --pretty=format:'%gd %gs' 2>/dev/null
-    echo
-  done | \
-  awk '
-    /checkout: moving from .* to / {
-      if (!match($1, /\{[0-9]+\}/)) next
-      ts = substr($1, RSTART+1, RLENGTH-2) + 0
-      branch = $NF
-      if (!(branch in seen) || ts > seen[branch]) seen[branch] = ts
-    }
-    END { for (b in seen) printf "%d %s\n", seen[b], b }
-  ' | \
-  sort -rn -k1,1 | \
-  head -n "$limit" | \
-  awk -v now="$(date +%s)" '
-    function rel(diff,    n, unit) {
-      if (diff < 60) { n = diff; unit = "second" }
-      else if (diff < 3600) { n = int(diff/60); unit = "minute" }
-      else if (diff < 86400) { n = int(diff/3600); unit = "hour" }
-      else if (diff < 86400*14) { n = int(diff/86400); unit = "day" }
-      else if (diff < 86400*70) { n = int(diff/(86400*7)); unit = "week" }
-      else if (diff < 86400*365) { n = int(diff/(86400*30)); unit = "month" }
-      else { n = int(diff/(86400*365)); unit = "year" }
-      return n " " unit (n==1?"":"s") " ago"
-    }
-    { printf(" \033[33m%s: \033[32m\033[1m%s\033[0m\n", rel(now - $1), $2) }
-  '
+def worktree_paths():
+    out = subprocess.check_output(["git", "worktree", "list", "--porcelain"], text=True)
+    search_prefix = "worktree "
+    return [
+        line[len(search_prefix) :]
+        for line in out.splitlines()
+        if line.startswith(search_prefix)
+    ]
+
+
+def reflog_lines(worktree):
+    result = subprocess.run(
+        [
+            "git",
+            "-C",
+            worktree,
+            "reflog",
+            "show",
+            "--date=unix",
+            "--pretty=format:%gd %gs",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return []
+    return result.stdout.splitlines()
+
+
+def collect_branches():
+    latest = {}
+    for wt in worktree_paths():
+        for line in reflog_lines(wt):
+            m = CHECKOUT_RE.match(line)
+            if not m:
+                continue
+            ts = int(m.group("timestamp"))
+            branch = m.group("branch")
+            if ts > latest.get(branch, -1):
+                latest[branch] = ts
+    return sorted(latest.items(), key=lambda kv: kv[1], reverse=True)
+
+
+def describe_time_ago(diff):
+    diff = max(0, int(diff))
+    units = [
+        (60, 1, "second"),
+        (3600, 60, "minute"),
+        (86400, 3600, "hour"),
+        (86400 * 14, 86400, "day"),
+        (86400 * 70, 86400 * 7, "week"),
+        (86400 * 365, 86400 * 30, "month"),
+    ]
+    for threshold, divisor, unit in units:
+        if diff < threshold:
+            n = diff // divisor
+            return f"{n} {unit}{'' if n == 1 else 's'} ago"
+    n = diff // (86400 * 365)
+    return f"{n} year{'' if n == 1 else 's'} ago"
+
+
+def main():
+    parser = argparse.ArgumentParser(description="List recently checked-out branches")
+    parser.add_argument(
+        "-n",
+        "--limit",
+        type=int,
+        default=20,
+        help="number of branches to show (default: 20; <=0 shows all branches still present in the reflog)",
+    )
+    args = parser.parse_args()
+
+    now = int(time.time())
+    branches = collect_branches()
+    if args.limit > 0:
+        branches = branches[: args.limit]
+    for branch, ts in branches:
+        sys.stdout.write(
+            f" \033[33m{describe_time_ago(now - ts)}: \033[32m\033[1m{branch}\033[0m\n"
+        )
+
+
+if __name__ == "__main__":
+    main()

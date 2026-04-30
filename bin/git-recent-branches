@@ -81,6 +81,9 @@ def collect_branches():
             continue
         branch = str(path.relative_to(logs_dir))
         latest[branch] = ts
+    for branch, ts in collect_head_checkout_times().items():
+        if branch in latest and ts > latest[branch]:
+            latest[branch] = ts
     return latest
 
 
@@ -115,7 +118,8 @@ def parse_checkout_line(line):
     return target, ts
 
 
-def collect_non_branch_targets(branch_names):
+@functools.cache
+def collect_head_checkout_times():
     latest = {}
     for path in head_reflog_paths():
         with path.open() as f:
@@ -124,11 +128,17 @@ def collect_non_branch_targets(branch_names):
                 if parsed is None:
                     continue
                 target, ts = parsed
-                if target in branch_names:
-                    continue
                 if ts > latest.get(target, -1):
                     latest[target] = ts
     return latest
+
+
+def collect_non_branch_targets(branch_names):
+    return {
+        target: ts
+        for target, ts in collect_head_checkout_times().items()
+        if target not in branch_names
+    }
 
 
 def describe_time_ago(diff):

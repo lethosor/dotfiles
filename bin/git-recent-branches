@@ -1,0 +1,198 @@
+#!/usr/bin/env python
+import argparse
+import functools
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+
+@functools.cache
+def get_current_gitdir():
+    out = subprocess.check_output(["git", "rev-parse", "--git-dir"], text=True).strip()
+    return Path(out).resolve()
+
+
+@functools.cache
+def get_common_gitdir():
+    out = subprocess.check_output(
+        ["git", "rev-parse", "--git-common-dir"], text=True
+    ).strip()
+    return Path(out).resolve()
+
+
+def read_head_branch(head_file):
+    try:
+        content = head_file.read_text().strip()
+    except OSError:
+        return None
+    prefix = "ref: refs/heads/"
+    if content.startswith(prefix):
+        return content[len(prefix) :]
+    return None
+
+
+def read_branches_in_other_worktrees():
+    common_gitdir = get_common_gitdir()
+    current_gitdir = get_current_gitdir()
+    head_files = [common_gitdir / "HEAD"]
+    worktrees_dir = common_gitdir / "worktrees"
+    if worktrees_dir.is_dir():
+        for wt_dir in worktrees_dir.iterdir():
+            head_files.append(wt_dir / "HEAD")
+    branches = set()
+    for head in head_files:
+        if not head.is_file():
+            continue
+        if head.parent.resolve() == current_gitdir:
+            continue
+        branch = read_head_branch(head)
+        if branch:
+            branches.add(branch)
+    return branches
+
+
+def latest_reflog_timestamp(path):
+    last = ""
+    with path.open() as f:
+        for line in f:
+            if line.strip():
+                last = line
+    if not last:
+        return None
+    header = last.split("\t", 1)[0]
+    parts = header.split()
+    try:
+        return int(parts[-2])
+    except (ValueError, IndexError):
+        return None
+
+
+def collect_branches():
+    logs_dir = get_common_gitdir() / "logs" / "refs" / "heads"
+    if not logs_dir.is_dir():
+        return {}
+    latest = {}
+    for path in logs_dir.rglob("*"):
+        if not path.is_file():
+            continue
+        ts = latest_reflog_timestamp(path)
+        if ts is None:
+            continue
+        branch = str(path.relative_to(logs_dir))
+        latest[branch] = ts
+    for branch, ts in collect_head_checkout_times().items():
+        if branch in latest and ts > latest[branch]:
+            latest[branch] = ts
+    return latest
+
+
+def head_reflog_paths():
+    gitdir = get_common_gitdir()
+    paths = []
+    main_log = gitdir / "logs" / "HEAD"
+    if main_log.is_file():
+        paths.append(main_log)
+    worktrees_dir = gitdir / "worktrees"
+    if worktrees_dir.is_dir():
+        for wt_dir in worktrees_dir.iterdir():
+            log = wt_dir / "logs" / "HEAD"
+            if log.is_file():
+                paths.append(log)
+    return paths
+
+
+def parse_checkout_line(line):
+    # reflog line: <oldsha> <newsha> <name> <email> <ts> <tz>\t<message>
+    header, _, message = line.partition("\t")
+    if not message.startswith("checkout: moving from "):
+        return None
+    _, _, target = message.rstrip("\n").rpartition(" to ")
+    if not target:
+        return None
+    parts = header.split()
+    try:
+        ts = int(parts[-2])
+    except (ValueError, IndexError):
+        return None
+    return target, ts
+
+
+@functools.cache
+def collect_head_checkout_times():
+    latest = {}
+    for path in head_reflog_paths():
+        with path.open() as f:
+            for line in f:
+                parsed = parse_checkout_line(line)
+                if parsed is None:
+                    continue
+                target, ts = parsed
+                if ts > latest.get(target, -1):
+                    latest[target] = ts
+    return latest
+
+
+def collect_non_branch_targets(branch_names):
+    return {
+        target: ts
+        for target, ts in collect_head_checkout_times().items()
+        if target not in branch_names
+    }
+
+
+def describe_time_ago(diff):
+    diff = max(0, int(diff))
+    units = [
+        (60, 1, "second"),
+        (3600, 60, "minute"),
+        (86400, 3600, "hour"),
+        (86400 * 14, 86400, "day"),
+        (86400 * 70, 86400 * 7, "week"),
+        (86400 * 365, 86400 * 30, "month"),
+    ]
+    for threshold, divisor, unit in units:
+        if diff < threshold:
+            n = diff // divisor
+            return f"{n} {unit}{'' if n == 1 else 's'} ago"
+    n = diff // (86400 * 365)
+    return f"{n} year{'' if n == 1 else 's'} ago"
+
+
+def main():
+    parser = argparse.ArgumentParser(description="List recently active branches")
+    parser.add_argument(
+        "-n",
+        "--limit",
+        type=int,
+        default=20,
+        help="number of branches to show (default: 20; <=0 shows all branches with a reflog)",
+    )
+    parser.add_argument(
+        "-a",
+        "--all",
+        action="store_true",
+        help="also include non-branch checkout targets (SHAs, tags, deleted branches) from worktree HEAD reflogs",
+    )
+    args = parser.parse_args()
+
+    now = int(time.time())
+    entries = collect_branches()
+    if args.all:
+        entries.update(collect_non_branch_targets(set(entries)))
+    branches_elsewhere = read_branches_in_other_worktrees()
+    sorted_entries = sorted(entries.items(), key=lambda kv: kv[1], reverse=True)
+    if args.limit > 0:
+        sorted_entries = sorted_entries[: args.limit]
+    for branch, ts in sorted_entries:
+        if branch in branches_elsewhere:
+            name_style = "\033[31;3m"  # red + italic
+        else:
+            name_style = "\033[32;1m"  # green + bold
+        sys.stdout.write(
+            f" \033[33m{describe_time_ago(now - ts)}: {name_style}{branch}\033[0m\n"
+        )
+
+
+if __name__ == "__main__":
+    main()

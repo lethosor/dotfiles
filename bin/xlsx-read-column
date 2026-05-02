@@ -1,0 +1,77 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "pyexcel==0.7.4",
+#     "pyexcel-xlsx==0.6.1",
+# ]
+# ///
+
+import argparse
+import sys
+import warnings
+from pathlib import Path
+from typing import Any
+
+import pyexcel
+
+warnings.filterwarnings("ignore", category=Warning, module=r"openpyxl\..*")
+
+
+def cell_to_text(value: Any) -> str:
+    if value is None:
+        return ""
+    return str(value)
+
+
+def read_column(path: Path, column_name: str, sheet_name: str | None) -> list[Any]:
+    if sheet_name:
+        sheet = pyexcel.get_sheet(file_name=str(path), sheet_name=sheet_name)
+    else:
+        sheet = pyexcel.get_sheet(file_name=str(path))
+
+    rows = list(sheet.rows())
+    if not rows:
+        raise ValueError("spreadsheet is empty")
+
+    header = [cell_to_text(cell) for cell in rows[0]]
+    try:
+        column_index = header.index(column_name)
+    except ValueError:
+        raise ValueError(f"column not found: {column_name}")
+
+    return [row[column_index] if column_index < len(row) else "" for row in rows[1:]]
+
+
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Print an xlsx column selected by its first-row header."
+    )
+    parser.add_argument("xlsx", type=Path, help="xlsx file to read")
+    parser.add_argument("column_name", help="first-row value identifying the column")
+    parser.add_argument(
+        "-s",
+        "--sheet",
+        dest="sheet_name",
+        help="sheet name to read; defaults to pyexcel's first sheet",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str]) -> int:
+    args = parse_args(argv)
+
+    try:
+        values = read_column(args.xlsx, args.column_name, args.sheet_name)
+    except Exception as e:
+        print(f"xlsx-read-column: {e}", file=sys.stderr)
+        return 1
+
+    for value in values:
+        print(cell_to_text(value))
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

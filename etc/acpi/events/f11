@@ -1,0 +1,2 @@
+event=ibm/hotkey LEN0268:00 00000080 00001320
+action=/usr/local/bin/keyd do nextsong

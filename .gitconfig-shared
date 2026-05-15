@@ -16,6 +16,7 @@
 	logf = log --pretty=fuller
 	logh = log --pretty=\"%Cgreen%h%Creset: %s\"
 	log-stash = log -m --walk-reflogs --first-parent refs/stash
+	ls = ls-files
 	pl = pull
 	plf = pull --ff-only
 	ps = push

@@ -26,6 +26,10 @@
             "selector": "source.terraform",
             "cmd": ["xfmt", "$file", "--tag", "terraform"],
         },
+        {
+            "selector": "source.terraform-vars",
+            "cmd": ["xfmt", "$file", "--tag", "terraform"],
+        },
     ],
     "timeout": 5
 }

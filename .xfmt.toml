@@ -9,7 +9,7 @@ include = ["*.py"]
 command = ["fmt-ruff-with-includes", "--stdin-filename", "$file", "-"]
 
 [[rule]]
-tags = ["terraform", "source.terraform"]
+tags = ["terraform", "source.terraform", "source.terraform-vars"]
 include = ["*.tf"]
 command = ["terraform", "fmt", "-no-color", "-"]
 

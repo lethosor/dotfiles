@@ -24,6 +24,7 @@ export LSCOLORS=ExGxBxDxCxEgEdxbxgxcxd
 export CLICOLOR=1
 export GREP_COLOR='1;31'
 export GREP_COLORS='mt=1;31' # GNU grep 3.8+
+export LESS='-R --use-color --color=PYk'
 
 export CDPATH=
 

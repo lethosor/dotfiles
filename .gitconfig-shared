@@ -37,7 +37,7 @@
 	ui = true
 [core]
 	excludesfile = ~/.gitignore
-	pager2 = less
+	pager = less -FRX
 	editor = ~/dotfiles/bin/cli-editor
 [init]
 	defaultBranch = master

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+less_bin=$(PATH=/usr/local/bin:/usr/bin:/bin which less | head -n1)
+exec "$less_bin" -R --use-color --color=PYk "$@"

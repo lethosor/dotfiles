@@ -32,9 +32,11 @@ def check_url(raw_url):
     )
 
     p1.stdout.close()
-    stdout, _ = p2.communicate()
-
-    print(host, stdout.strip().replace("\n", " | "))
+    try:
+        stdout, _ = p2.communicate(timeout=5)
+        print(host, stdout.strip().replace("\n", " | "))
+    except subprocess.TimeoutExpired:
+        print("TIMEOUT:", host)
 
 
 def main():

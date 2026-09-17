@@ -1,0 +1,19 @@
+#!/bin/bash
+
+opts=()
+files=()
+for arg in "$@"; do
+    first_char="${arg:0:1}"
+    if [[ "$first_char" == "-" ]]; then
+        opts+=("$arg")
+    else
+        files+=("$arg")
+    fi
+done
+
+if [[ ${#files[@]} -ne 1 ]]; then
+    echo >&2 "$0: only one file is supported"
+    exit 1
+fi
+
+jq --color-output < "${files[0]}" | less -R

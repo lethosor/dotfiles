@@ -7,13 +7,19 @@ if [[ "$#" -eq 0 ]]; then
     exit 1
 fi
 
+include_spec=""
 for file in "$@"; do
     file_full_path="$(git ls-files --full-name "${file}")"
     if [[ -n "${file_full_path}" ]]; then
         echo "Fetching: ${file_full_path}"
-        git lfs pull --include "${file_full_path}" --exclude ""
-        echo ""
+        include_spec="${include_spec:+${include_spec},}${file_full_path}"
     else
         echo "WARN: Not found in index: ${file}"
     fi
 done
+
+if [[ -n "${include_spec}" ]]; then
+    git lfs pull --include "${include_spec}" --exclude ""
+else
+    echo "ERROR: No files to fetch"
+fi
